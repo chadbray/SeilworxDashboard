@@ -1,0 +1,13 @@
+{
+  "name": "seilworx-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "update": "node scripts/update-plancraft.mjs",
+    "check": "node --check scripts/update-plancraft.mjs && node --check public/app.js"
+  },
+  "dependencies": {
+    "playwright": "^1.55.0"
+  }
+}
