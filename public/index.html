@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#584939" />
+    <title>Seilworx Teamübersicht</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <img src="seilworx-logo.png" alt="Seilworx – Handwerk im Seil" />
+      <div class="brand-copy"><span>Teamübersicht</span><strong>Einsatzplanung · Aachen</strong></div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div><h1>Wer arbeitet wo?</h1><p>Projekte und Mitarbeitereinteilung für die nächsten acht Tage</p></div>
+        <div class="freshness"><strong id="dateRange">Wird geladen …</strong><span id="checkedAt">Planung wird geladen</span></div>
+      </section>
+
+      <section class="dashboard" aria-live="polite">
+        <div id="planning" class="planning"></div>
+        <aside class="weather">
+          <div class="weather-head"><div><small>Wetter</small><strong>Aachen · 8 Tage</strong></div><span>☁</span></div>
+          <div id="weatherRows"></div>
+        </aside>
+      </section>
+
+      <footer><span>Planungsdaten werden werktags um 05:00, 15:00 und 17:00 Uhr geprüft.</span><span id="weatherTime">Wetter wird geladen</span></footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
