@@ -1,4 +1,5 @@
 const BERLIN = "Europe/Berlin";
+const PLANNING_REFRESH_MS = 5 * 60 * 1000;
 const WEATHER_REFRESH_MS = 3 * 60 * 60 * 1000;
 const WEATHER_FIELDS = "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max";
 
@@ -70,11 +71,32 @@ async function refreshWeather(){
 }
 
 async function start(){
+  await refreshPlanning();
+  window.setInterval(()=>refreshPlanning().catch(()=>{}),PLANNING_REFRESH_MS);
+  window.setInterval(refreshWeather,WEATHER_REFRESH_MS);
+  window.setInterval(reloadBeforeFirstUpdate,30*1000);
+  reloadBeforeFirstUpdate();
+}
+
+async function refreshPlanning(){
   const response=await fetch(`schedule.json?t=${Date.now()}`,{cache:"no-store"});
   if(!response.ok)throw new Error("Planungsdaten konnten nicht geladen werden");
   const data=await response.json();
   if(!Array.isArray(data.days)||data.days.length!==8)throw new Error("Ungültige Planungsdaten");
-  renderSchedule(data); await refreshWeather(); window.setInterval(refreshWeather,WEATHER_REFRESH_MS);
+  if(!schedule||data.checkedAt!==schedule.checkedAt||JSON.stringify(data.days)!==JSON.stringify(schedule.days)){
+    renderSchedule(data);
+    await refreshWeather();
+  }
+}
+
+function reloadBeforeFirstUpdate(){
+  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:BERLIN,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
+  const value=type=>parts.find(part=>part.type===type)?.value;
+  const date=`${value("year")}-${value("month")}-${value("day")}`;
+  if(value("hour")==="04"&&value("minute")==="55"&&sessionStorage.getItem("dailyReloadDate")!==date){
+    sessionStorage.setItem("dailyReloadDate",date);
+    window.location.reload();
+  }
 }
 
 start().catch(error=>{planning.innerHTML=`<div class="empty"><strong>${escapeHtml(error.message)}</strong></div>`;});
