@@ -1,0 +1,41 @@
+name: Dashboard veröffentlichen
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "public/**"
+      - ".github/workflows/publish.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: seilworx-dashboard
+  cancel-in-progress: true
+
+jobs:
+  veroeffentlichen:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository laden
+        uses: actions/checkout@v5
+
+      - name: GitHub Pages vorbereiten
+        uses: actions/configure-pages@v5
+
+      - name: Dashboard-Paket hochladen
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: public
+
+      - name: Dashboard veröffentlichen
+        id: deployment
+        uses: actions/deploy-pages@v4
