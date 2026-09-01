@@ -31,6 +31,8 @@ Open **Actions → Update and publish dashboard → Run workflow → Run workflo
 
 The workflow runs hourly from 05:00 through 17:00, Monday–Friday, in `Europe/Berlin`, including daylight-saving-time changes. A failed login or invalid planner response stops the deployment, leaving the last working dashboard online.
 
+An open dashboard checks for newly published planning data every five minutes and updates without a manual browser refresh. It also performs one protected full-page reload at 04:55 Europe/Berlin each day so a permanently open TV browser picks up new site assets.
+
 ## Manual update and troubleshooting
 
 - Run now: **Actions → Update and publish dashboard → Run workflow**
