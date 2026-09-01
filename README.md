@@ -12,8 +12,8 @@ Open **Settings → Secrets and variables → Actions → New repository secret*
 
 | Name | Value |
 |---|---|
-| \`PLANCRAFT_EMAIL\` | The normal email address used to sign in to PlanCraft |
-| \`PLANCRAFT_PASSWORD\` | The PlanCraft password |
+| `PLANCRAFT_EMAIL` | The normal email address used to sign in to PlanCraft |
+| `PLANCRAFT_PASSWORD` | The PlanCraft password |
 
 Never put the password into a repository file, issue, commit, or chat.
 
@@ -25,11 +25,11 @@ Open **Settings → Pages** and set **Source** to **GitHub Actions**.
 
 Open **Actions → Update and publish dashboard → Run workflow → Run workflow**. When the green check appears, the site will be available at:
 
-\`https://chadbray.github.io/SeilworxDashboard/\`
+`https://chadbray.github.io/SeilworxDashboard/`
 
 ## Automatic updates
 
-The workflow runs Monday–Friday at 05:00, 15:00, and 17:00 in \`Europe/Berlin\`, including daylight-saving-time changes. A failed login or invalid planner response stops the deployment, leaving the last working dashboard online.
+The workflow runs hourly from 05:00 through 17:00, Monday–Friday, in `Europe/Berlin`, including daylight-saving-time changes. A failed login or invalid planner response stops the deployment, leaving the last working dashboard online.
 
 ## Manual update and troubleshooting
 
@@ -37,6 +37,6 @@ The workflow runs Monday–Friday at 05:00, 15:00, and 17:00 in \`Europe/Berlin\
 - Logs: open the latest run under **Actions**, then open the failed job and step.
 - Pause: use **Actions → Update and publish dashboard → … → Disable workflow**.
 - Resume: use **Enable workflow** and run it once manually.
-- Change the password: update only the \`PLANCRAFT_PASSWORD\` repository secret.
+- Change the password: update only the `PLANCRAFT_PASSWORD` repository secret.
 
-PlanCraft may change its page structure. If a run reports that the planner structure was not recognized, the selectors in \`scripts/update-plancraft.mjs\` need a maintenance update.
+PlanCraft may change its page structure. If a run reports that the planner structure was not recognized, the selectors in `scripts/update-plancraft.mjs` need a maintenance update.

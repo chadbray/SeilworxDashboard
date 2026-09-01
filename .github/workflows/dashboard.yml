@@ -14,11 +14,7 @@ on:
       - ".github/workflows/dashboard.yml"
   workflow_dispatch:
   schedule:
-    - cron: "0 5 * * 1-5"
-      timezone: "Europe/Berlin"
-    - cron: "0 15 * * 1-5"
-      timezone: "Europe/Berlin"
-    - cron: "0 17 * * 1-5"
+    - cron: "0 5-17 * * 1-5"
       timezone: "Europe/Berlin"
 
 permissions:

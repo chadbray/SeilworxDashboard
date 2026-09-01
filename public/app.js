@@ -22,7 +22,8 @@ function renderSchedule(data){
   planning.innerHTML=data.days.map(day=>{
     const weekend=[0,6].includes(dateValue(day.date).getDay());
     const today=day.date===nowDate;
-    const cards=day.projects.length?day.projects.map(project=>`<section class="project"><h2>${escapeHtml(project.name)}</h2><div class="people">${project.team.map(person=>`<div class="person"><span class="avatar">${escapeHtml(initials(person))}</span><span>${escapeHtml(person)}</span></div>`).join("")}</div></section>`).join(""):`<div class="empty"><div><strong>${weekend?"Wochenende":"Keine Einsätze"}</strong><span>Keine Projekte eingeteilt</span></div></div>`;
+    const assignedProjects=day.projects.filter(project=>Array.isArray(project.team)&&project.team.length>0);
+    const cards=assignedProjects.length?assignedProjects.map(project=>`<section class="project"><h2>${escapeHtml(project.name)}</h2><div class="people">${project.team.map(person=>`<div class="person"><span class="avatar">${escapeHtml(initials(person))}</span><span>${escapeHtml(person)}</span></div>`).join("")}</div></section>`).join(""):`<div class="empty"><div><strong>${weekend?"Wochenende":"Keine Einsätze"}</strong><span>Keine Mitarbeiter eingeteilt</span></div></div>`;
     return `<article class="day${today?" today":""}${weekend?" weekend":""}"><header class="day-head"><small>${fmt(day.date,{weekday:"long"})}${today?'<span class="today-pill">Heute</span>':""}</small><strong>${fmt(day.date,{day:"2-digit",month:"short"})}</strong></header><div class="projects">${cards}</div></article>`;
   }).join("");
   renderWeatherLoading();

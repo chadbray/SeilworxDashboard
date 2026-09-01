@@ -43,7 +43,7 @@ function validate(data){
   if(!data||!Array.isArray(data.days)||data.days.length!==8)throw new Error("Expected exactly eight planning days.");
   for(const day of data.days){
     if(!/^\d{4}-\d{2}-\d{2}$/.test(day.date)||!Array.isArray(day.projects))throw new Error("Invalid planning response.");
-    for(const project of day.projects)if(!project.name||!Array.isArray(project.team))throw new Error("A project is missing its name or team.");
+    for(const project of day.projects)if(!project.name||!Array.isArray(project.team)||project.team.length<1)throw new Error("A project is missing its name or assigned team.");
   }
 }
 
