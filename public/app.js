@@ -1,17 +1,24 @@
 const BERLIN = "Europe/Berlin";
 const PLANNING_REFRESH_MS = 5 * 60 * 1000;
+const CERTIFICATE_REFRESH_MS = 5 * 60 * 1000;
 const WEATHER_REFRESH_MS = 3 * 60 * 60 * 1000;
+const SCREEN_DURATIONS = [3 * 60 * 1000, 2 * 60 * 1000];
 const WEATHER_FIELDS = "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max";
 
 const planning = document.querySelector("#planning");
 const weatherRows = document.querySelector("#weatherRows");
 let schedule = null;
+let certificateData = null;
+let currentScreen = 0;
 
 const dateValue = (iso) => new Date(`${iso}T12:00:00`);
 const fmt = (iso, options) => new Intl.DateTimeFormat("de-DE", {...options, timeZone:BERLIN}).format(dateValue(iso));
 const initials = (name) => name.replace(/\([^)]*\)/g, "").split(/\s+/).filter(Boolean).slice(0,2).map(p=>p[0]).join("");
 const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
 const icon = (code) => code===0?"☀":code<=3?"☁":code<=48?"≋":code<=67?"🌧":code<=77?"❄":code<=82?"🌦":"⛈";
+const certificateDate = iso => iso ? new Date(`${iso}T12:00:00`) : null;
+const certificateFmt = iso => iso ? new Intl.DateTimeFormat("de-DE",{timeZone:BERLIN,day:"2-digit",month:"2-digit",year:"numeric"}).format(certificateDate(iso)) : "Nicht hinterlegt";
+const berlinToday = () => new Intl.DateTimeFormat("en-CA",{timeZone:BERLIN,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
 
 function renderSchedule(data){
   schedule=data;
@@ -72,10 +79,13 @@ async function refreshWeather(){
 
 async function start(){
   await refreshPlanning();
+  await refreshCertificates().catch(error=>{document.querySelector("#certificateRows").innerHTML=`<div class="certificate-error">${escapeHtml(error.message)}</div>`;});
   window.setInterval(()=>refreshPlanning().catch(()=>{}),PLANNING_REFRESH_MS);
+  window.setInterval(()=>refreshCertificates().catch(()=>{}),CERTIFICATE_REFRESH_MS);
   window.setInterval(refreshWeather,WEATHER_REFRESH_MS);
   window.setInterval(reloadBeforeFirstUpdate,30*1000);
   reloadBeforeFirstUpdate();
+  scheduleNextScreen();
 }
 
 async function refreshPlanning(){
@@ -97,6 +107,46 @@ function reloadBeforeFirstUpdate(){
     sessionStorage.setItem("dailyReloadDate",date);
     window.location.reload();
   }
+}
+
+async function refreshCertificates(){
+  const response=await fetch(`certificates.json?t=${Date.now()}`,{cache:"no-store"});
+  if(!response.ok)throw new Error("Zertifikatsdaten konnten nicht geladen werden");
+  const data=await response.json();
+  if(!Array.isArray(data.employees)||!Array.isArray(data.appointments))throw new Error("Ungültige Zertifikatsdaten");
+  if(!certificateData||JSON.stringify(data)!==JSON.stringify(certificateData))renderCertificates(data);
+}
+
+function certificateStatus(iso){
+  if(!iso)return {className:"missing",label:"Nicht hinterlegt",sort:Infinity};
+  const days=Math.round((certificateDate(iso)-certificateDate(berlinToday()))/86400000);
+  if(days<0)return {className:"expired",label:`Abgelaufen · ${certificateFmt(iso)}`,sort:certificateDate(iso).getTime()};
+  if(days<=30)return {className:"urgent",label:`${certificateFmt(iso)} · ${days} Tage`,sort:certificateDate(iso).getTime()};
+  if(days<=90)return {className:"soon",label:`${certificateFmt(iso)} · ${days} Tage`,sort:certificateDate(iso).getTime()};
+  return {className:"valid",label:certificateFmt(iso),sort:certificateDate(iso).getTime()};
+}
+
+function renderCertificates(data){
+  certificateData=data;
+  document.querySelector("#certificateChecked").textContent=`Stand: ${new Intl.DateTimeFormat("de-DE",{timeZone:BERLIN,day:"2-digit",month:"2-digit",year:"numeric"}).format(certificateDate(data.asOf))}`;
+  const employees=data.employees.map(employee=>{
+    const states={climbing:certificateStatus(employee.climbing),medical:certificateStatus(employee.medical),firstAid:certificateStatus(employee.firstAid)};
+    return {...employee,states,sort:Math.min(...Object.values(states).map(state=>state.sort))};
+  }).sort((a,b)=>a.sort-b.sort||a.name.localeCompare(b.name,"de"));
+  document.querySelector("#certificateRows").innerHTML=employees.map(employee=>`<div class="certificate-row"><strong>${escapeHtml(employee.name)}</strong>${["climbing","medical","firstAid"].map(key=>`<span class="certificate-cell ${employee.states[key].className}">${escapeHtml(employee.states[key].label)}</span>`).join("")}</div>`).join("");
+  const appointments=[...data.appointments].sort((a,b)=>Number(b.booked)-Number(a.booked)||a.name.localeCompare(b.name,"de"));
+  document.querySelector("#appointmentRows").innerHTML=appointments.map(item=>`<div class="appointment ${item.booked?"booked":"open"}"><div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.type)}</span></div><em>${item.booked?item.date?certificateFmt(item.date):"Gebucht · Datum fehlt":"Noch nicht gebucht"}</em></div>`).join("");
+}
+
+function scheduleNextScreen(){
+  window.setTimeout(()=>{
+    currentScreen=(currentScreen+1)%2;
+    const screens=[...document.querySelectorAll(".screen")];
+    screens.forEach((screen,index)=>{screen.classList.toggle("active",index===currentScreen);screen.setAttribute("aria-hidden",String(index!==currentScreen));});
+    [...document.querySelectorAll(".screen-dots span")].forEach((dot,index)=>dot.classList.toggle("active",index===currentScreen));
+    document.querySelector("#viewTitle").textContent=currentScreen===0?"Einsatzplanung · Aachen":"Schulungen & Termine";
+    scheduleNextScreen();
+  },SCREEN_DURATIONS[currentScreen]);
 }
 
 start().catch(error=>{planning.innerHTML=`<div class="empty"><strong>${escapeHtml(error.message)}</strong></div>`;});
