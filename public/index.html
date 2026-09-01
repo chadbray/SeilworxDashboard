@@ -8,30 +8,55 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20260901-2" />
+    <link rel="stylesheet" href="style.css?v=20260901-4" />
   </head>
   <body>
     <header class="topbar">
       <img src="https://seilworx.de/wp-content/uploads/2021/03/Seilworx-Logo-klein-200x81.png" alt="Seilworx – Handwerk im Seil" />
-      <div class="brand-copy"><span>Teamübersicht</span><strong>Einsatzplanung · Aachen</strong></div>
+      <div class="brand-copy"><span>Teamübersicht</span><strong id="viewTitle">Einsatzplanung · Aachen</strong></div>
     </header>
 
     <main>
-      <section class="intro">
-        <div><h1>Wer arbeitet wo?</h1><p>Projekte und Mitarbeitereinteilung für die nächsten acht Tage</p></div>
-        <div class="freshness"><strong id="dateRange">Wird geladen …</strong><span id="checkedAt">Planung wird geladen</span></div>
+      <section class="screen active" data-screen="planning">
+        <section class="intro">
+          <div><h1>Wer arbeitet wo?</h1><p>Projekte und Mitarbeitereinteilung für die nächsten acht Tage</p></div>
+          <div class="freshness"><strong id="dateRange">Wird geladen …</strong><span id="checkedAt">Planung wird geladen</span></div>
+        </section>
+
+        <section class="dashboard" aria-live="polite">
+          <div id="planning" class="planning"></div>
+          <aside class="weather">
+            <div class="weather-head"><div><small>Wetter</small><strong>Aachen · 8 Tage</strong></div><span>☁</span></div>
+            <div id="weatherRows"></div>
+          </aside>
+        </section>
+
+        <footer><span>Planungsdaten werden werktags stündlich von 05:00 bis 17:00 Uhr geprüft.</span><span id="weatherTime">Wetter wird geladen</span></footer>
       </section>
 
-      <section class="dashboard" aria-live="polite">
-        <div id="planning" class="planning"></div>
-        <aside class="weather">
-          <div class="weather-head"><div><small>Wetter</small><strong>Aachen · 8 Tage</strong></div><span>☁</span></div>
-          <div id="weatherRows"></div>
-        </aside>
+      <section class="screen" data-screen="certificates" aria-hidden="true">
+        <section class="intro">
+          <div><h1>Schulungen &amp; Termine</h1><p>Zertifikate, Untersuchungen und gebuchte Erneuerungstermine</p></div>
+          <div class="freshness"><strong>Priorität nach Ablaufdatum</strong><span id="certificateChecked">Stand wird geladen</span></div>
+        </section>
+
+        <section class="certificate-board">
+          <section class="expiry-panel">
+            <header class="panel-head"><div><small>Priorität</small><strong>Nächste Ablauffristen</strong></div><span>Frühestes Datum zuerst</span></header>
+            <div class="certificate-table-head"><span>Mitarbeiter</span><span>Kletterzertifikat</span><span>Medizin</span><span>Erste Hilfe</span></div>
+            <div id="certificateRows" class="certificate-rows"></div>
+          </section>
+          <aside class="appointment-panel">
+            <header class="panel-head"><div><small>Planung</small><strong>Gebuchte Termine</strong></div><span>✓</span></header>
+            <div id="appointmentRows" class="appointment-rows"></div>
+          </aside>
+        </section>
+
+        <footer><span>Fehlende Termine werden als „Noch nicht gebucht“ angezeigt.</span><span>Quelle: Mitarbeiter-Zertifikatsübersicht</span></footer>
       </section>
 
-      <footer><span>Planungsdaten werden werktags stündlich von 05:00 bis 17:00 Uhr geprüft.</span><span id="weatherTime">Wetter wird geladen</span></footer>
+      <div class="screen-dots" aria-hidden="true"><span class="active"></span><span></span></div>
     </main>
-    <script type="module" src="app.js?v=20260901-3"></script>
+    <script type="module" src="app.js?v=20260901-4"></script>
   </body>
 </html>
