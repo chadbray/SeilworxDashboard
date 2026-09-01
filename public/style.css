@@ -8,3 +8,5 @@
 .certificate-cell.outside-window{justify-content:center;background:transparent;color:rgba(88,73,57,.24)}
 .certificate-cell.reference{background:#f1f2f3;color:#686d70;font-weight:700}
 .certificate-table-head,.certificate-row{grid-template-columns:1.22fr repeat(3,1fr)}
+.topbar{height:68px}.topbar img{height:53px}
+@media(max-height:720px){.topbar{height:57px}.topbar img{height:44px}}
