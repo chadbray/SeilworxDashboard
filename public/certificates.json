@@ -15,7 +15,7 @@
     {"name":"Katharina Santa","climbing":null,"medical":null,"firstAid":null}
   ],
   "appointments": [
-    {"name":"Katharina Santa","type":"Kletterkurs","booked":true,"date":null},
+    {"name":"Katharina Santa","type":"Kletterkurs","booked":true,"date":"2026-10-19","endDate":"2026-10-23","time":"09:00–17:00 Uhr"},
     {"name":"Katharina Santa","type":"Medizin","booked":false,"date":null},
     {"name":"Katharina Santa","type":"Erste Hilfe","booked":false,"date":null},
     {"name":"Dominic Malina","type":"Kletterzertifikat","booked":false,"date":null},
