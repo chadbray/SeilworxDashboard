@@ -6,3 +6,4 @@
 @media(max-height:720px){.topbar{height:52px}.topbar img{height:40px}main{padding-top:6px}.intro{height:43px}.intro h1{font-size:20px}.day{min-height:430px}.day-head,.weather-head{height:42px}.weather-row{height:50px;padding-block:3px}.projects{gap:3px}.project{padding:3px}.project h2{margin-bottom:3px}.person{padding-block:1px}footer{height:18px;padding-top:4px}}
 .screen-dots button{width:18px;height:4px;padding:0;border:0;border-radius:3px;background:rgba(88,73,57,.2);cursor:pointer}.screen-dots button.active{background:var(--blue)}
 .certificate-cell.outside-window{justify-content:center;background:transparent;color:rgba(88,73,57,.24)}
+.certificate-cell.reference{background:#f1f2f3;color:#686d70;font-weight:700}
