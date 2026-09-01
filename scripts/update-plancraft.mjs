@@ -19,6 +19,26 @@ function berlinDate(offset=0){
 }
 
 function clean(value){return String(value??"").replace(/\s+/g," ").trim();}
+async function gotoWithRetry(page,url){
+  let lastError;
+  for(let attempt=1;attempt<=3;attempt++){
+    try{
+      await page.goto(url,{waitUntil:"domcontentloaded",timeout:60000});
+      return;
+    }catch(error){
+      lastError=error;
+      // PlanCraft occasionally replaces the initial app navigation while it
+      // redirects to its login shell. Chromium reports that as ERR_ABORTED
+      // even though the replacement page is already loading normally.
+      if(/ERR_ABORTED/.test(error.message)&&page.url()!=="about:blank"){
+        await page.waitForLoadState("domcontentloaded",{timeout:15000}).catch(()=>{});
+        return;
+      }
+      if(attempt<3)await page.waitForTimeout(1500*attempt);
+    }
+  }
+  throw lastError;
+}
 function validate(data){
   if(!data||!Array.isArray(data.days)||data.days.length!==8)throw new Error("Expected exactly eight planning days.");
   for(const day of data.days){
@@ -28,7 +48,7 @@ function validate(data){
 }
 
 async function login(page){
-  await page.goto(PLANNER_URL,{waitUntil:"domcontentloaded",timeout:60000});
+  await gotoWithRetry(page,PLANNER_URL);
   const password=page.locator('input[type="password"], input[name="password"]').first();
   if(await password.isVisible({timeout:5000}).catch(()=>false)){
     const email=page.locator('input[type="email"], input[name="email"], input[autocomplete="username"]').first();
@@ -39,7 +59,7 @@ async function login(page){
       page.getByRole("button",{name:/anmelden|einloggen|log in|sign in/i}).first().click()
     ]);
   }
-  await page.goto(PLANNER_URL,{waitUntil:"domcontentloaded",timeout:60000});
+  await gotoWithRetry(page,PLANNER_URL);
   if(await page.locator('input[type="password"], input[name="password"]').first().isVisible({timeout:3000}).catch(()=>false))throw new Error("PlanCraft rejected the login. Check the GitHub Secrets.");
 }
 
