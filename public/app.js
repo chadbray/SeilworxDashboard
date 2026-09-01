@@ -10,6 +10,7 @@ const weatherRows = document.querySelector("#weatherRows");
 let schedule = null;
 let certificateData = null;
 let currentScreen = 0;
+let rotationTimer = null;
 
 const dateValue = (iso) => new Date(`${iso}T12:00:00`);
 const fmt = (iso, options) => new Intl.DateTimeFormat("de-DE", {...options, timeZone:BERLIN}).format(dateValue(iso));
@@ -78,6 +79,16 @@ async function refreshWeather(){
 }
 
 async function start(){
+  currentScreen=window.location.hash==="#certificates"?1:0;
+  showScreen(currentScreen);
+  document.querySelectorAll("[data-screen-target]").forEach(button=>button.addEventListener("click",()=>{
+    showScreen(Number(button.dataset.screenTarget),{updateHash:true});
+    scheduleNextScreen();
+  }));
+  window.addEventListener("hashchange",()=>{
+    showScreen(window.location.hash==="#certificates"?1:0);
+    scheduleNextScreen();
+  });
   await refreshPlanning();
   await refreshCertificates().catch(error=>{document.querySelector("#certificateRows").innerHTML=`<div class="certificate-error">${escapeHtml(error.message)}</div>`;});
   window.setInterval(()=>refreshPlanning().catch(()=>{}),PLANNING_REFRESH_MS);
@@ -138,13 +149,27 @@ function renderCertificates(data){
   document.querySelector("#appointmentRows").innerHTML=appointments.map(item=>`<div class="appointment ${item.booked?"booked":"open"}"><div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.type)}</span></div><em>${item.booked?item.date?certificateFmt(item.date):"Gebucht · Datum fehlt":"Noch nicht gebucht"}</em></div>`).join("");
 }
 
+function showScreen(index,{updateHash=false}={}){
+  currentScreen=index;
+  [...document.querySelectorAll(".screen")].forEach((screen,screenIndex)=>{
+    screen.classList.toggle("active",screenIndex===currentScreen);
+    screen.setAttribute("aria-hidden",String(screenIndex!==currentScreen));
+  });
+  [...document.querySelectorAll("[data-screen-target]")].forEach((button,buttonIndex)=>{
+    button.classList.toggle("active",buttonIndex===currentScreen);
+    button.setAttribute("aria-current",buttonIndex===currentScreen?"page":"false");
+  });
+  document.querySelector("#viewTitle").textContent=currentScreen===0?"Einsatzplanung · Aachen":"Schulungen & Termine";
+  if(updateHash){
+    const hash=currentScreen===1?"#certificates":"#planning";
+    history.replaceState(null,"",hash);
+  }
+}
+
 function scheduleNextScreen(){
-  window.setTimeout(()=>{
-    currentScreen=(currentScreen+1)%2;
-    const screens=[...document.querySelectorAll(".screen")];
-    screens.forEach((screen,index)=>{screen.classList.toggle("active",index===currentScreen);screen.setAttribute("aria-hidden",String(index!==currentScreen));});
-    [...document.querySelectorAll(".screen-dots span")].forEach((dot,index)=>dot.classList.toggle("active",index===currentScreen));
-    document.querySelector("#viewTitle").textContent=currentScreen===0?"Einsatzplanung · Aachen":"Schulungen & Termine";
+  window.clearTimeout(rotationTimer);
+  rotationTimer=window.setTimeout(()=>{
+    showScreen((currentScreen+1)%2,{updateHash:true});
     scheduleNextScreen();
   },SCREEN_DURATIONS[currentScreen]);
 }
