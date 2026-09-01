@@ -1,6 +1,6 @@
 # Seilworx Team Dashboard
 
-Public, German-language TV dashboard for the SG Seilworx team. GitHub Actions signs in to PlanCraft with Playwright, reads today plus the following seven days, and publishes the static dashboard to GitHub Pages.
+Public, German-language TV dashboard for the SG Seilworx team. GitHub Actions signs in to PlanCraft with Playwright, reads today plus the following seven days, and publishes the static dashboard to GitHub Pages. It shows projects only when at least one employee is assigned and also shows the PlanCraft absence types **Krank**, **Urlaub**, and **Unbezahlter Urlaub**.
 
 Scheduled runs generate the current employee assignments inside the deployment artifact. They do **not** create new planning-data commits in this public repository.
 
