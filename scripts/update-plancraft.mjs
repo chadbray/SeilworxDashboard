@@ -50,17 +50,18 @@ function validate(data){
 async function login(page){
   await gotoWithRetry(page,PLANNER_URL);
   const password=page.locator('input[type="password"], input[name="password"]').first();
-  if(await password.isVisible({timeout:5000}).catch(()=>false)){
+  const planner=page.locator('.fc-timeline-slot, [data-date], .fc-event').first();
+  await password.or(planner).waitFor({state:"visible",timeout:30000});
+  if(await password.isVisible()){
     const email=page.locator('input[type="email"], input[name="email"], input[autocomplete="username"]').first();
+    await email.waitFor({state:"visible",timeout:15000});
     await email.fill(EMAIL);
     await password.fill(PASSWORD);
-    await Promise.all([
-      page.waitForLoadState("domcontentloaded").catch(()=>{}),
-      page.getByRole("button",{name:/anmelden|einloggen|log in|sign in/i}).first().click()
-    ]);
+    await page.getByRole("button",{name:/anmelden|einloggen|log in|sign in/i}).first().click();
+    await page.waitForURL(url=>!url.pathname.includes("/login"),{timeout:30000}).catch(()=>{});
   }
   await gotoWithRetry(page,PLANNER_URL);
-  if(await page.locator('input[type="password"], input[name="password"]').first().isVisible({timeout:3000}).catch(()=>false))throw new Error("PlanCraft rejected the login. Check the GitHub Secrets.");
+  if(await page.locator('input[type="password"], input[name="password"]').first().isVisible({timeout:10000}).catch(()=>false))throw new Error("PlanCraft rejected the login. Check the GitHub Secrets.");
 }
 
 async function openPlanner(page){
