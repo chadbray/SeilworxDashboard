@@ -20,6 +20,12 @@ const icon = (code) => code===0?"☀":code<=3?"☁":code<=48?"≋":code<=67?"�
 const certificateDate = iso => iso ? new Date(`${iso}T12:00:00`) : null;
 const certificateFmt = iso => iso ? new Intl.DateTimeFormat("de-DE",{timeZone:BERLIN,day:"2-digit",month:"2-digit",year:"numeric"}).format(certificateDate(iso)) : "Nicht hinterlegt";
 const berlinToday = () => new Intl.DateTimeFormat("en-CA",{timeZone:BERLIN,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+const certificateCutoff = () => {
+  const cutoff=certificateDate(berlinToday());
+  cutoff.setMonth(cutoff.getMonth()+6);
+  return cutoff;
+};
+const expiresWithinSixMonths = iso => iso && certificateDate(iso)<=certificateCutoff();
 
 function renderSchedule(data){
   schedule=data;
@@ -143,9 +149,9 @@ function renderCertificates(data){
   const employees=data.employees.map(employee=>{
     const states={climbing:certificateStatus(employee.climbing),medical:certificateStatus(employee.medical),firstAid:certificateStatus(employee.firstAid)};
     return {...employee,states,sort:Math.min(...Object.values(states).map(state=>state.sort))};
-  }).sort((a,b)=>a.sort-b.sort||a.name.localeCompare(b.name,"de"));
-  document.querySelector("#certificateRows").innerHTML=employees.map(employee=>`<div class="certificate-row"><strong>${escapeHtml(employee.name)}</strong>${["climbing","medical","firstAid"].map(key=>`<span class="certificate-cell ${employee.states[key].className}">${escapeHtml(employee.states[key].label)}</span>`).join("")}</div>`).join("");
-  const appointments=[...data.appointments].sort((a,b)=>Number(b.booked)-Number(a.booked)||a.name.localeCompare(b.name,"de"));
+  }).filter(employee=>[employee.climbing,employee.medical,employee.firstAid].some(expiresWithinSixMonths)).sort((a,b)=>a.sort-b.sort||a.name.localeCompare(b.name,"de"));
+  document.querySelector("#certificateRows").innerHTML=employees.length?employees.map(employee=>`<div class="certificate-row"><strong>${escapeHtml(employee.name)}</strong>${["climbing","medical","firstAid"].map(key=>expiresWithinSixMonths(employee[key])?`<span class="certificate-cell ${employee.states[key].className}">${escapeHtml(employee.states[key].label)}</span>`:`<span class="certificate-cell outside-window">—</span>`).join("")}</div>`).join(""):`<div class="certificate-error">Keine Ablauffristen in den nächsten sechs Monaten</div>`;
+  const appointments=data.appointments.filter(item=>item.booked).sort((a,b)=>(a.date??"9999-12-31").localeCompare(b.date??"9999-12-31")||a.name.localeCompare(b.name,"de"));
   document.querySelector("#appointmentRows").innerHTML=appointments.map(item=>`<div class="appointment ${item.booked?"booked":"open"}"><div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.type)}</span></div><em>${item.booked?item.date?certificateFmt(item.date):"Gebucht · Datum fehlt":"Noch nicht gebucht"}</em></div>`).join("");
 }
 
