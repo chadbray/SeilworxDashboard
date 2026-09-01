@@ -26,12 +26,12 @@ const appointmentFmt = item => {
   return item.time?`${dates} · ${item.time}`:dates;
 };
 const berlinToday = () => new Intl.DateTimeFormat("en-CA",{timeZone:BERLIN,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
-const certificateCutoff = () => {
+const climbingCertificateCutoff = () => {
   const cutoff=certificateDate(berlinToday());
-  cutoff.setMonth(cutoff.getMonth()+6);
+  cutoff.setMonth(cutoff.getMonth()+8);
   return cutoff;
 };
-const expiresWithinSixMonths = iso => iso && certificateDate(iso)<=certificateCutoff();
+const climbingExpiresWithinEightMonths = iso => iso && certificateDate(iso)<=climbingCertificateCutoff();
 
 function renderSchedule(data){
   schedule=data;
@@ -153,10 +153,10 @@ function renderCertificates(data){
   certificateData=data;
   document.querySelector("#certificateChecked").textContent=`Stand: ${new Intl.DateTimeFormat("de-DE",{timeZone:BERLIN,day:"2-digit",month:"2-digit",year:"numeric"}).format(certificateDate(data.asOf))}`;
   const employees=data.employees.map(employee=>{
-    const states={climbing:certificateStatus(employee.climbing),medical:certificateStatus(employee.medical),firstAid:certificateStatus(employee.firstAid)};
-    return {...employee,states,sort:states.climbing.sort};
-  }).filter(employee=>expiresWithinSixMonths(employee.climbing)).sort((a,b)=>a.sort-b.sort||a.name.localeCompare(b.name,"de"));
-  document.querySelector("#certificateRows").innerHTML=employees.length?employees.map(employee=>`<div class="certificate-row"><strong>${escapeHtml(employee.name)}</strong><span class="certificate-cell ${employee.states.climbing.className}">${escapeHtml(employee.states.climbing.label)}</span><span class="certificate-cell reference">${escapeHtml(certificateFmt(employee.medical))}</span><span class="certificate-cell reference">${escapeHtml(certificateFmt(employee.firstAid))}</span></div>`).join(""):`<div class="certificate-error">Keine Kletterzertifikate laufen in den nächsten sechs Monaten ab</div>`;
+    const climbingState=certificateStatus(employee.climbing);
+    return {...employee,climbingState,sort:climbingState.sort};
+  }).filter(employee=>climbingExpiresWithinEightMonths(employee.climbing)).sort((a,b)=>a.sort-b.sort||a.name.localeCompare(b.name,"de"));
+  document.querySelector("#certificateRows").innerHTML=employees.length?employees.map(employee=>`<div class="certificate-row"><strong>${escapeHtml(employee.name)}</strong><span class="certificate-cell ${employee.climbingState.className}">${escapeHtml(employee.climbingState.label)}</span><span class="certificate-cell reference">${escapeHtml(certificateFmt(employee.medical))}</span><span class="certificate-cell reference">${escapeHtml(certificateFmt(employee.firstAid))}</span></div>`).join(""):`<div class="certificate-error">Keine Kletterzertifikate laufen in den nächsten acht Monaten ab</div>`;
   const appointments=data.appointments.filter(item=>item.booked).sort((a,b)=>(a.date??"9999-12-31").localeCompare(b.date??"9999-12-31")||a.name.localeCompare(b.name,"de"));
   document.querySelector("#appointmentRows").innerHTML=appointments.map(item=>`<div class="appointment booked"><div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.type)}</span></div><em>${escapeHtml(appointmentFmt(item))}</em></div>`).join("");
 }
