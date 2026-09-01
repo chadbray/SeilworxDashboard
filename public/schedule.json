@@ -1,0 +1,47 @@
+{
+  "checkedAt": "2026-09-01T05:22:54.499Z",
+  "days": [
+    {
+      "date": "2026-09-01",
+      "projects": [
+        {
+          "name": "Lager",
+          "team": [
+            "Akbar Akbari",
+            "Fabian Schmidt",
+            "Katharina Santa",
+            "Vasyl Kordiak"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "projects": []
+    },
+    {
+      "date": "2026-09-03",
+      "projects": []
+    },
+    {
+      "date": "2026-09-04",
+      "projects": []
+    },
+    {
+      "date": "2026-09-05",
+      "projects": []
+    },
+    {
+      "date": "2026-09-06",
+      "projects": []
+    },
+    {
+      "date": "2026-09-07",
+      "projects": []
+    },
+    {
+      "date": "2026-09-08",
+      "projects": []
+    }
+  ]
+}
