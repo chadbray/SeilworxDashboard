@@ -1,6 +1,17 @@
 name: Update and publish dashboard
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/**"
+      - "public/*.js"
+      - "public/*.css"
+      - "public/*.html"
+      - ".github/workflows/dashboard.yml"
   workflow_dispatch:
   schedule:
     - cron: "0 5 * * 1-5"

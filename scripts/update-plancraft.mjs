@@ -83,8 +83,8 @@ async function readBoard(page){
       }
     }
     const uniqueDates=[...new Map(dates.map(d=>[d.date,d])).values()];
-    const resources=[...document.querySelectorAll('.fc-datagrid-cell.fc-resource, [data-resource-id] .fc-datagrid-cell-main, [role="rowheader"]')].map(el=>{const host=el.closest('.fc-datagrid-cell.fc-resource, [role="row"]')||el;return {name:clean(el.querySelector?.('.fc-datagrid-cell-main')?.textContent||el.textContent),...rect(host)};}).filter(x=>x.name&&x.height>3);
-    const events=[...document.querySelectorAll('a.fc-event.allocation, .fc-timeline-event, .fc-event')].map(el=>({name:clean(el.querySelector('.fc-event-title,.fc-event-main-frame,.fc-event-main')?.textContent||el.getAttribute("aria-label")||el.textContent),...rect(el)})).filter(x=>x.name&&x.width>1&&x.height>1);
+    const resources=[...document.querySelectorAll('.fc-datagrid-cell.fc-resource')].filter(el=>el.querySelector('[data-testid^="resource-member-"]')).map(el=>({id:el.getAttribute("data-resource-id"),name:clean(el.querySelector('.fc-datagrid-cell-main')?.textContent||el.textContent),...rect(el)})).filter(x=>x.id&&x.name&&x.height>3);
+    const events=[...document.querySelectorAll('a.fc-event.allocation')].map(el=>({name:clean(el.querySelector('.fc-event-title,.fc-event-main-frame,.fc-event-main')?.textContent||el.getAttribute("aria-label")||el.textContent),resourceId:el.closest('[data-resource-id]')?.getAttribute('data-resource-id'),...rect(el)})).filter(x=>x.name&&x.width>1&&x.height>1);
     return {dates:uniqueDates,resources,events};
   },{wantedDates:Array.from({length:8},(_,i)=>berlinDate(i))});
 }
@@ -93,7 +93,7 @@ function assemble(raw){
   const days=Array.from({length:8},(_,i)=>({date:berlinDate(i),projects:[]}));
   const projectMaps=new Map(days.map(d=>[d.date,new Map()]));
   for(const event of raw.events){
-    const employee=raw.resources.filter(r=>Math.min(r.bottom,event.bottom)-Math.max(r.top,event.top)>2).sort((a,b)=>Math.abs((a.top+a.bottom-event.top-event.bottom)) - Math.abs((b.top+b.bottom-event.top-event.bottom)))[0]?.name;
+    const employee=raw.resources.find(r=>r.id===event.resourceId)?.name||raw.resources.filter(r=>Math.min(r.bottom,event.bottom)-Math.max(r.top,event.top)>2).sort((a,b)=>Math.abs((a.top+a.bottom-event.top-event.bottom)) - Math.abs((b.top+b.bottom-event.top-event.bottom)))[0]?.name;
     if(!employee)continue;
     for(const date of raw.dates){
       const overlap=Math.min(date.right,event.right)-Math.max(date.left,event.left);
