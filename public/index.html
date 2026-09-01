@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20260901-4" />
+    <link rel="stylesheet" href="style.css?v=20260901-5" />
   </head>
   <body>
     <header class="topbar">
@@ -55,8 +55,11 @@
         <footer><span>Fehlende Termine werden als „Noch nicht gebucht“ angezeigt.</span><span>Quelle: Mitarbeiter-Zertifikatsübersicht</span></footer>
       </section>
 
-      <div class="screen-dots" aria-hidden="true"><span class="active"></span><span></span></div>
+      <div class="screen-dots" aria-label="Ansicht wechseln">
+        <button class="active" type="button" data-screen-target="0" aria-label="Einsatzplanung anzeigen"></button>
+        <button type="button" data-screen-target="1" aria-label="Schulungen und Termine anzeigen"></button>
+      </div>
     </main>
-    <script type="module" src="app.js?v=20260901-4"></script>
+    <script type="module" src="app.js?v=20260901-5"></script>
   </body>
 </html>
