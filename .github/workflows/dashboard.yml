@@ -11,6 +11,7 @@ on:
       - "public/*.js"
       - "public/*.css"
       - "public/*.html"
+      - "public/certificates.json"
       - ".github/workflows/dashboard.yml"
   workflow_dispatch:
   schedule:
