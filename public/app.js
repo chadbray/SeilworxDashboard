@@ -19,6 +19,12 @@ const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, c=>({"&":"&amp;"
 const icon = (code) => code===0?"☀":code<=3?"☁":code<=48?"≋":code<=67?"🌧":code<=77?"❄":code<=82?"🌦":"⛈";
 const certificateDate = iso => iso ? new Date(`${iso}T12:00:00`) : null;
 const certificateFmt = iso => iso ? new Intl.DateTimeFormat("de-DE",{timeZone:BERLIN,day:"2-digit",month:"2-digit",year:"numeric"}).format(certificateDate(iso)) : "Nicht hinterlegt";
+const appointmentFmt = item => {
+  if(!item.date)return "Gebucht · Datum fehlt";
+  const start=item.endDate?new Intl.DateTimeFormat("de-DE",{timeZone:BERLIN,day:"2-digit",month:"2-digit"}).format(certificateDate(item.date)):certificateFmt(item.date);
+  const dates=item.endDate?`${start}–${certificateFmt(item.endDate)}`:start;
+  return item.time?`${dates} · ${item.time}`:dates;
+};
 const berlinToday = () => new Intl.DateTimeFormat("en-CA",{timeZone:BERLIN,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
 const certificateCutoff = () => {
   const cutoff=certificateDate(berlinToday());
@@ -152,7 +158,7 @@ function renderCertificates(data){
   }).filter(employee=>expiresWithinSixMonths(employee.climbing)).sort((a,b)=>a.sort-b.sort||a.name.localeCompare(b.name,"de"));
   document.querySelector("#certificateRows").innerHTML=employees.length?employees.map(employee=>`<div class="certificate-row"><strong>${escapeHtml(employee.name)}</strong><span class="certificate-cell ${employee.states.climbing.className}">${escapeHtml(employee.states.climbing.label)}</span><span class="certificate-cell reference">${escapeHtml(certificateFmt(employee.medical))}</span><span class="certificate-cell reference">${escapeHtml(certificateFmt(employee.firstAid))}</span></div>`).join(""):`<div class="certificate-error">Keine Kletterzertifikate laufen in den nächsten sechs Monaten ab</div>`;
   const appointments=data.appointments.filter(item=>item.booked).sort((a,b)=>(a.date??"9999-12-31").localeCompare(b.date??"9999-12-31")||a.name.localeCompare(b.name,"de"));
-  document.querySelector("#appointmentRows").innerHTML=appointments.map(item=>`<div class="appointment ${item.booked?"booked":"open"}"><div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.type)}</span></div><em>${item.booked?item.date?certificateFmt(item.date):"Gebucht · Datum fehlt":"Noch nicht gebucht"}</em></div>`).join("");
+  document.querySelector("#appointmentRows").innerHTML=appointments.map(item=>`<div class="appointment booked"><div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.type)}</span></div><em>${escapeHtml(appointmentFmt(item))}</em></div>`).join("");
 }
 
 function showScreen(index,{updateHash=false}={}){
