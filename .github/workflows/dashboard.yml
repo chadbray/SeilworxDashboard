@@ -23,7 +23,7 @@ jobs:
   update-and-publish:
     environment:
       name: github-pages
-      url: \${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -48,8 +48,8 @@ jobs:
       - name: Read current PlanCraft planning
         run: npm run update
         env:
-          PLANCRAFT_EMAIL: \${{ secrets.PLANCRAFT_EMAIL }}
-          PLANCRAFT_PASSWORD: \${{ secrets.PLANCRAFT_PASSWORD }}
+          PLANCRAFT_EMAIL: ${{ secrets.PLANCRAFT_EMAIL }}
+          PLANCRAFT_PASSWORD: ${{ secrets.PLANCRAFT_PASSWORD }}
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
