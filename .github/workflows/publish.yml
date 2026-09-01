@@ -1,41 +1,38 @@
-name: Dashboard veröffentlichen
+name: Check dashboard code
 
 on:
   push:
     branches:
       - main
     paths:
-      - "public/**"
-      - ".github/workflows/publish.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/**"
+      - "public/*.js"
+      - "public/*.css"
+      - "public/*.html"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: seilworx-dashboard
-  cancel-in-progress: true
 
 jobs:
-  veroeffentlichen:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  check:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Repository laden
+      - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: GitHub Pages vorbereiten
-        uses: actions/configure-pages@v5
-
-      - name: Dashboard-Paket hochladen
-        uses: actions/upload-pages-artifact@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          path: public
+          node-version: 24
+          cache: npm
 
-      - name: Dashboard veröffentlichen
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check source files
+        run: npm run check
