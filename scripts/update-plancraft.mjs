@@ -86,7 +86,7 @@ async function readBoard(page){
     const uniqueDates=[...new Map(dates.map(d=>[d.date,d])).values()];
     const resources=[...document.querySelectorAll('.fc-datagrid-cell.fc-resource')].filter(el=>el.querySelector('[data-testid^="resource-member-"]')).map(el=>({id:el.getAttribute("data-resource-id"),name:clean(el.querySelector('.fc-datagrid-cell-main')?.textContent||el.textContent),...rect(el)})).filter(x=>x.id&&x.name&&x.height>3);
     const events=[...document.querySelectorAll('a.fc-event.allocation')].map(el=>({name:clean(el.querySelector('.fc-event-title,.fc-event-main-frame,.fc-event-main')?.textContent||el.getAttribute("aria-label")||el.textContent),resourceId:el.closest('[data-resource-id]')?.getAttribute('data-resource-id'),...rect(el)})).filter(x=>x.name&&x.width>1&&x.height>1);
-    const absenceTypes={"🤒":{type:"sick",label:"Krank"},"🌴":{type:"holiday",label:"Urlaub"},"🌚":{type:"unpaid-holiday",label:"Unbezahlter Urlaub"}};
+    const absenceTypes={"🤒":{type:"sick",label:"Krank"},"🌴":{type:"holiday",label:"Urlaub"},"🌵":{type:"unpaid-holiday",label:"Unbezahlter Urlaub"}};
     const absences=[...document.querySelectorAll('a.fc-event.time-entry')].map(el=>{
       const marker=clean(el.textContent);
       return absenceTypes[marker]?{...absenceTypes[marker],resourceId:el.closest('[data-resource-id]')?.getAttribute('data-resource-id'),...rect(el)}:null;
