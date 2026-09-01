@@ -2,6 +2,8 @@
 
 Public, German-language TV dashboard for the SG Seilworx team. GitHub Actions signs in to PlanCraft with Playwright, reads today plus the following seven days, and publishes the static dashboard to GitHub Pages. It shows projects only when at least one employee is assigned and also shows the PlanCraft absence types **Krank**, **Urlaub**, and **Unbezahlter Urlaub**.
 
+The TV display rotates automatically between the planning view (three minutes) and **Schulungen & Termine** (two minutes). The second view sorts employees by their earliest known climbing, medical, or first-aid expiry and separates booked appointments from items that are not yet booked.
+
 Scheduled runs generate the current employee assignments inside the deployment artifact. They do **not** create new planning-data commits in this public repository.
 
 ## One-time setup
