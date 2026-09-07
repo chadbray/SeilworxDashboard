@@ -2,7 +2,7 @@ const BERLIN = "Europe/Berlin";
 const PLANNING_REFRESH_MS = 5 * 60 * 1000;
 const CERTIFICATE_REFRESH_MS = 5 * 60 * 1000;
 const WEATHER_REFRESH_MS = 3 * 60 * 60 * 1000;
-const SCREEN_DURATIONS = [3 * 60 * 1000, 2 * 60 * 1000];
+const SCREEN_DURATIONS = [3 * 60 * 1000, 2 * 60 * 1000, 2 * 60 * 1000];
 const WEATHER_FIELDS = "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max";
 
 const planning = document.querySelector("#planning");
@@ -85,7 +85,7 @@ async function refreshWeather(){
 }
 
 async function start(){
-  currentScreen=window.location.hash==="#certificates"?1:0;
+  currentScreen=screenIndexFromHash();
   showScreen(currentScreen);
   document.querySelectorAll("[data-screen-target]").forEach(button=>button.addEventListener("click",()=>{
     showScreen(Number(button.dataset.screenTarget),{updateHash:true});
@@ -155,6 +155,12 @@ function renderCertificates(data){
   document.querySelector("#appointmentRows").innerHTML=appointments.map(item=>`<div class="appointment booked"><div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.type)}</span></div><em>${escapeHtml(appointmentFmt(item))}</em></div>`).join("");
 }
 
+function screenIndexFromHash(){
+  if(window.location.hash==="#certificates")return 1;
+  if(window.location.hash==="#info")return 2;
+  return 0;
+}
+
 function showScreen(index,{updateHash=false}={}){
   currentScreen=index;
   [...document.querySelectorAll(".screen")].forEach((screen,screenIndex)=>{
@@ -165,9 +171,9 @@ function showScreen(index,{updateHash=false}={}){
     button.classList.toggle("active",buttonIndex===currentScreen);
     button.setAttribute("aria-current",buttonIndex===currentScreen?"page":"false");
   });
-  document.querySelector("#viewTitle").textContent=currentScreen===0?"Einsatzplanung · Aachen":"Schulungen & Termine";
+  document.querySelector("#viewTitle").textContent=currentScreen===0?"Einsatzplanung · Aachen":currentScreen===1?"Schulungen & Termine":"Wichtige Informationen";
   if(updateHash){
-    const hash=currentScreen===1?"#certificates":"#planning";
+    const hash=currentScreen===1?"#certificates":currentScreen===2?"#info":"#planning";
     history.replaceState(null,"",hash);
   }
 }
@@ -175,7 +181,7 @@ function showScreen(index,{updateHash=false}={}){
 function scheduleNextScreen(){
   window.clearTimeout(rotationTimer);
   rotationTimer=window.setTimeout(()=>{
-    showScreen((currentScreen+1)%2,{updateHash:true});
+    showScreen((currentScreen+1)%3,{updateHash:true});
     scheduleNextScreen();
   },SCREEN_DURATIONS[currentScreen]);
 }
