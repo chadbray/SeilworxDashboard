@@ -10,3 +10,17 @@
 .certificate-table-head,.certificate-row{grid-template-columns:1.22fr repeat(3,1fr)}
 .topbar{height:68px}.topbar img{height:53px}
 @media(max-height:720px){.topbar{height:57px}.topbar img{height:44px}}
+
+
+.info-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;min-height:505px}
+.info-card{min-width:0;overflow:hidden;border:1px solid var(--line);border-top:4px solid var(--blue);border-radius:11px;background:#fff;box-shadow:0 10px 32px rgba(88,73,57,.09)}
+.info-card.info-sick{border-top-color:#c85c5c}.info-card.info-late{border-top-color:#d29a32}.info-card.info-site{border-top-color:#4d8aa8}
+.info-card-head{min-height:72px;padding:11px 13px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);background:#f8f9f9}
+.info-card-head .info-icon{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:50%;background:#fff;font-size:20px}
+.info-card-head small{display:block;margin-bottom:3px;color:var(--blue);font-size:8px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+.info-card-head h2{margin:0;color:var(--brown);font-size:15px;line-height:1.1;font-weight:900}
+.info-body{padding:13px 14px;color:rgba(45,41,38,.86);font-size:11px;line-height:1.38}
+.info-body p{margin:0 0 11px}.info-body p:last-child{margin-bottom:0}.info-body strong{color:var(--brown);font-weight:900}
+.info-body ul{margin:-4px 0 12px;padding-left:19px}.info-body li{margin:0 0 5px;padding-left:2px}
+@media(max-width:1200px){.info-board{gap:7px}.info-card-head{padding:9px 10px;gap:7px}.info-card-head h2{font-size:13px}.info-body{padding:10px 11px;font-size:9.5px}.info-body p{margin-bottom:8px}.info-body ul{margin-bottom:8px}}
+@media(max-height:720px){.info-board{min-height:430px}.info-card-head{min-height:58px;padding:7px 9px}.info-card-head .info-icon{width:28px;height:28px;flex-basis:28px;font-size:16px}.info-card-head h2{font-size:11px}.info-body{padding:8px 9px;font-size:8.5px;line-height:1.28}.info-body p{margin-bottom:7px}.info-body ul{margin-bottom:7px}.info-body li{margin-bottom:3px}}
