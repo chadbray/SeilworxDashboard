@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20260901-11" />
+    <link rel="stylesheet" href="style.css?v=20260907-12" />
   </head>
   <body>
     <header class="topbar">
@@ -55,11 +55,58 @@
         <footer><span>Alle Mitarbeiter werden angezeigt; die Reihenfolge richtet sich ausschließlich nach dem Kletterzertifikat.</span><span>Quelle: Mitarbeiter-Zertifikatsübersicht</span></footer>
       </section>
 
+
+      <section class="screen" data-screen="info" aria-hidden="true">
+        <section class="intro">
+          <div><h1>Wichtige Informationen</h1><p>Bitte informiere dein Team und das Büro rechtzeitig</p></div>
+          <div class="freshness"><strong>Kommunikation im Projekt</strong><span>Plancraft</span></div>
+        </section>
+
+        <section class="info-board">
+          <article class="info-card info-sick">
+            <header class="info-card-head"><span class="info-icon">🤒</span><div><small>Wichtig</small><h2>Was tun, wenn du krank bist?</h2></div></header>
+            <div class="info-body">
+              <p>Wenn du dich nicht gut fühlst und nicht zur Arbeit kommen kannst, schreibe Chad – oder Vera, wenn Chad nicht erreichbar ist.</p>
+              <p>Informiere ihn darüber, dass du krank bist und nicht zur Arbeit kommen kannst. Du musst außerdem <strong>im Projekt in Plancraft</strong> schreiben, dass du nicht zur Arbeit kommen wirst, und nicht nur einem Teammitglied eine Nachricht schicken. So ist dein gesamtes Team informiert.</p>
+              <p>Nachdem du beim Arzt warst, schreibe Chad und informiere ihn darüber, dass du beim Arzt warst und von welchem Datum bis zu welchem Datum du krankgeschrieben bist.</p>
+              <p>Wenn jemand, der für das Projekt eingeplant ist, die Nachricht sieht und die erkrankte Person vertreten kann, kann er dies ebenfalls in Plancraft schreiben. Das hilft uns sehr bei der schnellen Organisation des Teams.</p>
+            </div>
+          </article>
+
+          <article class="info-card info-late">
+            <header class="info-card-head"><span class="info-icon">⏱</span><div><small>Rechtzeitig melden</small><h2>Was tun, wenn du dich verspätest?</h2></div></header>
+            <div class="info-body">
+              <p>Schreibe in Plancraft, sobald du weißt – oder auch nur vermutest –, dass du dich verspäten wirst.</p>
+              <p>Informiere dein Team:</p>
+              <ul>
+                <li>Wann du voraussichtlich ankommst</li>
+                <li>Ob das Team direkt zur Baustelle fahren und dich dort treffen soll</li>
+                <li>Ob du bereits unterwegs bist</li>
+                <li>Ob das Team etwas für dich vorbereiten kann</li>
+              </ul>
+              <p>Achte darauf, dass deine eingetragenen Arbeits- und Fahrtzeiten korrekt sind und den tatsächlichen Zeiten entsprechen.</p>
+            </div>
+          </article>
+
+          <article class="info-card info-site">
+            <header class="info-card-head"><span class="info-icon">📍</span><div><small>Direkt zum Einsatz</small><h2>Was tun, wenn du direkt zur Baustelle fährst?</h2></div></header>
+            <div class="info-body">
+              <p>Wenn du direkt zur Baustelle fährst, schreibe dies in Plancraft, damit dein Team Bescheid weiß. So weiß auch das Büro, dass du nicht zuerst in die Firma kommst.</p>
+              <p>Informiere dein Team, wenn etwas für dich eingepackt oder zur Baustelle gebracht werden muss.</p>
+              <p><strong>Trage diese Fahrtzeit nicht als Arbeitszeit ein.</strong></p>
+            </div>
+          </article>
+        </section>
+
+        <footer><span>Wichtige Informationen bitte immer im jeweiligen Projekt in Plancraft hinterlegen.</span><span>Teamkommunikation</span></footer>
+      </section>
+
       <div class="screen-dots" aria-label="Ansicht wechseln">
         <button class="active" type="button" data-screen-target="0" aria-label="Einsatzplanung anzeigen"></button>
         <button type="button" data-screen-target="1" aria-label="Schulungen und Termine anzeigen"></button>
+        <button type="button" data-screen-target="2" aria-label="Wichtige Informationen anzeigen"></button>
       </div>
     </main>
-    <script type="module" src="app.js?v=20260901-10"></script>
+    <script type="module" src="app.js?v=20260907-11"></script>
   </body>
 </html>
