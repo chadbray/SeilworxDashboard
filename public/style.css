@@ -49,3 +49,22 @@
 .time-guide-grid strong{color:var(--brown);font-weight:900}
 @media(max-width:1200px){[data-screen="info"] .info-board{height:270px}[data-screen="info"] .info-body{font-size:8px}.time-guide-grid article{padding:8px}.time-guide-grid p{font-size:7.5px}}
 @media(max-height:720px){[data-screen="info"] .info-board{height:232px}[data-screen="info"] .info-card-head{min-height:48px;padding:5px 7px}[data-screen="info"] .info-card-head h2{font-size:9.5px}[data-screen="info"] .info-body{padding:6px 7px;font-size:7.2px;line-height:1.2}[data-screen="info"] .info-body p{margin-bottom:4px}[data-screen="info"] .info-body ul{margin-bottom:4px}.time-guide{margin-top:6px}.time-guide-head{height:34px}.time-guide-grid article{min-height:128px;padding:6px 7px}.time-guide-grid h3{font-size:8px;margin-bottom:3px}.time-guide-grid p{font-size:6.7px;line-height:1.22}}
+
+
+/* Page 3: make the four time-entry items match the cards above */
+.time-guide{overflow:visible;border:0;border-radius:0;background:transparent;box-shadow:none}
+.time-guide-head{margin-bottom:8px;border:1px solid rgba(88,73,57,.16);border-radius:9px;background:var(--brown)}
+.time-guide-grid{gap:9px}
+.time-guide-grid article{overflow:hidden;min-height:145px;padding:0;border:1px solid var(--line);border-top:4px solid var(--blue);border-radius:10px;background:#fff;box-shadow:0 8px 24px rgba(88,73,57,.08)}
+.time-guide-grid article:nth-child(2){border-top-color:#d29a32}
+.time-guide-grid article:nth-child(3){border-top-color:#4d8aa8}
+.time-guide-grid article:nth-child(4){border-top-color:#766597}
+.time-guide-grid h3{min-height:38px;margin:0;padding:7px 9px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--line);background:#f8f9f9;font-size:10px}
+.time-guide-grid h3:before{width:23px;height:23px;flex:0 0 23px;margin:0;display:grid;place-items:center;background:#fff;font-size:13px}
+.time-guide-grid article:nth-child(1) h3:before{content:"📁"}
+.time-guide-grid article:nth-child(2) h3:before{content:"⏱"}
+.time-guide-grid article:nth-child(3) h3:before{content:"👥"}
+.time-guide-grid article:nth-child(4) h3:before{content:"☕"}
+.time-guide-grid p{padding:8px 9px}
+@media(max-width:1200px){.time-guide-grid{gap:7px}.time-guide-grid h3{padding:6px 7px;font-size:9px}.time-guide-grid p{padding:7px}}
+@media(max-height:720px){.time-guide-head{margin-bottom:5px}.time-guide-grid{gap:6px}.time-guide-grid article{min-height:123px}.time-guide-grid h3{min-height:31px;padding:4px 6px;font-size:7.5px}.time-guide-grid h3:before{width:19px;height:19px;flex-basis:19px;font-size:10px}.time-guide-grid p{padding:5px 6px}}
