@@ -24,3 +24,28 @@
 .info-body ul{margin:-4px 0 12px;padding-left:19px}.info-body li{margin:0 0 5px;padding-left:2px}
 @media(max-width:1200px){.info-board{gap:7px}.info-card-head{padding:9px 10px;gap:7px}.info-card-head h2{font-size:13px}.info-body{padding:10px 11px;font-size:9.5px}.info-body p{margin-bottom:8px}.info-body ul{margin-bottom:8px}}
 @media(max-height:720px){.info-board{min-height:430px}.info-card-head{min-height:58px;padding:7px 9px}.info-card-head .info-icon{width:28px;height:28px;flex-basis:28px;font-size:16px}.info-card-head h2{font-size:11px}.info-body{padding:8px 9px;font-size:8.5px;line-height:1.28}.info-body p{margin-bottom:7px}.info-body ul{margin-bottom:7px}.info-body li{margin-bottom:3px}}
+
+
+/* Page 3: communication and time-entry guidance */
+[data-screen="info"] .info-board{min-height:0;height:282px}
+[data-screen="info"] .info-card-head{min-height:58px;padding:8px 11px}
+[data-screen="info"] .info-card-head .info-icon{width:30px;height:30px;flex-basis:30px;font-size:17px}
+[data-screen="info"] .info-card-head h2{font-size:13px}
+[data-screen="info"] .info-body{padding:9px 11px;font-size:9px;line-height:1.28}
+[data-screen="info"] .info-body p{margin-bottom:7px}
+[data-screen="info"] .info-body ul{margin:-2px 0 7px;padding-left:17px}
+[data-screen="info"] .info-body li{margin-bottom:3px}
+.time-guide{margin-top:9px;overflow:hidden;border:1px solid var(--line);border-radius:11px;background:#fff;box-shadow:0 10px 32px rgba(88,73,57,.09)}
+.time-guide-head{height:42px;padding:6px 11px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:var(--brown);color:#fff}
+.time-guide-head small{display:block;color:var(--blue);font-size:7px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+.time-guide-head h2{margin:1px 0 0;font-size:13px;line-height:1;font-weight:900}
+.time-guide-head>strong{color:rgba(255,255,255,.65);font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.time-guide-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.time-guide-grid article{min-width:0;min-height:145px;padding:9px 11px;border-right:1px solid var(--line)}
+.time-guide-grid article:last-child{border-right:0}
+.time-guide-grid h3{margin:0 0 5px;color:var(--brown);font-size:10px;font-weight:900}
+.time-guide-grid h3:before{content:"";display:inline-block;width:5px;height:5px;margin:0 5px 1px 0;border-radius:50%;background:var(--blue)}
+.time-guide-grid p{margin:0;color:rgba(45,41,38,.8);font-size:8.5px;line-height:1.32}
+.time-guide-grid strong{color:var(--brown);font-weight:900}
+@media(max-width:1200px){[data-screen="info"] .info-board{height:270px}[data-screen="info"] .info-body{font-size:8px}.time-guide-grid article{padding:8px}.time-guide-grid p{font-size:7.5px}}
+@media(max-height:720px){[data-screen="info"] .info-board{height:232px}[data-screen="info"] .info-card-head{min-height:48px;padding:5px 7px}[data-screen="info"] .info-card-head h2{font-size:9.5px}[data-screen="info"] .info-body{padding:6px 7px;font-size:7.2px;line-height:1.2}[data-screen="info"] .info-body p{margin-bottom:4px}[data-screen="info"] .info-body ul{margin-bottom:4px}.time-guide{margin-top:6px}.time-guide-head{height:34px}.time-guide-grid article{min-height:128px;padding:6px 7px}.time-guide-grid h3{font-size:8px;margin-bottom:3px}.time-guide-grid p{font-size:6.7px;line-height:1.22}}
