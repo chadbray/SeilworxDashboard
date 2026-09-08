@@ -68,3 +68,9 @@
 .time-guide-grid p{padding:8px 9px}
 @media(max-width:1200px){.time-guide-grid{gap:7px}.time-guide-grid h3{padding:6px 7px;font-size:9px}.time-guide-grid p{padding:7px}}
 @media(max-height:720px){.time-guide-head{margin-bottom:5px}.time-guide-grid{gap:6px}.time-guide-grid article{min-height:123px}.time-guide-grid h3{min-height:31px;padding:4px 6px;font-size:7.5px}.time-guide-grid h3:before{width:19px;height:19px;flex-basis:19px;font-size:10px}.time-guide-grid p{padding:5px 6px}}
+
+
+/* Consistent primary body text across all three pages */
+.person,.certificate-cell,.appointment span,.appointment em,[data-screen="info"] .info-body,.time-guide-grid p{font-size:9px}
+@media(max-width:1200px){.person,.certificate-cell,.appointment span,.appointment em,[data-screen="info"] .info-body,.time-guide-grid p{font-size:8px}}
+@media(max-height:720px){.person,.certificate-cell,.appointment span,.appointment em,[data-screen="info"] .info-body,.time-guide-grid p{font-size:7.2px}}
