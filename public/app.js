@@ -92,7 +92,7 @@ async function start(){
     scheduleNextScreen();
   }));
   window.addEventListener("hashchange",()=>{
-    showScreen(window.location.hash==="#certificates"?1:0);
+    showScreen(screenIndexFromHash());
     scheduleNextScreen();
   });
   await refreshPlanning();
