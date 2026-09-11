@@ -74,3 +74,6 @@
 .person,.certificate-cell,.appointment span,.appointment em,[data-screen="info"] .info-body,.time-guide-grid p{font-size:9px}
 @media(max-width:1200px){.person,.certificate-cell,.appointment span,.appointment em,[data-screen="info"] .info-body,.time-guide-grid p{font-size:8px}}
 @media(max-height:720px){.person,.certificate-cell,.appointment span,.appointment em,[data-screen="info"] .info-body,.time-guide-grid p{font-size:7.2px}}
+
+/* Keep the page navigation dots slightly higher above the screen edge. */
+.screen-dots{bottom:16px}
