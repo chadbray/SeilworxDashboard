@@ -78,7 +78,7 @@ async function openPlanner(page){
   await page.waitForTimeout(2500);
 }
 
-async function readBoard(page){
+async function readBoard(page,wantedDates){
   return page.evaluate(({wantedDates})=>{
     const clean=v=>String(v??"").replace(/\s+/g," ").trim();
     const rect=e=>{const r=e.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height};};
@@ -98,11 +98,11 @@ async function readBoard(page){
       return absenceTypes[marker]?{...absenceTypes[marker],resourceId:el.closest('[data-resource-id]')?.getAttribute('data-resource-id'),...rect(el)}:null;
     }).filter(x=>x&&x.width>1&&x.height>1);
     return {dates:uniqueDates,resources,events,absences};
-  },{wantedDates:planningDates()});
+  },{wantedDates});
 }
 
-function assemble(raw){
-  const days=planningDates().map(date=>({date,projects:[],absences:[]}));
+function assemble(raw,wantedDates=planningDates()){
+  const days=wantedDates.map(date=>({date,projects:[],absences:[]}));
   const projectMaps=new Map(days.map(d=>[d.date,new Map()]));
   const absenceMaps=new Map(days.map(d=>[d.date,new Map()]));
   for(const event of raw.events){
@@ -136,15 +136,38 @@ function assemble(raw){
   return {checkedAt:new Date().toISOString(),days};
 }
 
+async function readPlanningWindow(page){
+  const wantedDates=planningDates();
+  const captures=[];
+  const capturedDates=new Set();
+  for(let attempt=0;attempt<3;attempt++){
+    const remaining=wantedDates.filter(date=>!capturedDates.has(date));
+    if(!remaining.length)break;
+    const raw=await readBoard(page,remaining);
+    if(raw.resources.length<1)throw new Error("Planner employees were not recognized.");
+    captures.push(raw);
+    for(const day of raw.dates)capturedDates.add(day.date);
+    if(wantedDates.every(date=>capturedDates.has(date)))break;
+    const previousButton=page.locator(".fc-prev-button").first().or(page.getByRole("button",{name:/zurück|vorherig|previous/i}).first()).first();
+    if(!await previousButton.isVisible({timeout:3000}).catch(()=>false))break;
+    await previousButton.click();
+    await page.waitForTimeout(2500);
+  }
+  const missingDates=wantedDates.filter(date=>!capturedDates.has(date));
+  if(missingDates.length)throw new Error(`Planner did not expose all required dates: ${missingDates.join(", ")}.`);
+  const daysByDate=new Map();
+  for(const raw of captures){
+    const dates=raw.dates.map(day=>day.date);
+    for(const day of assemble(raw,dates).days)daysByDate.set(day.date,day);
+  }
+  return {checkedAt:new Date().toISOString(),days:wantedDates.map(date=>daysByDate.get(date))};
+}
+
 const browser=await chromium.launch({headless:true});
 try{
   const page=await browser.newPage({viewport:{width:2800,height:1800},locale:"de-DE",timezoneId:"Europe/Berlin"});
   await login(page); await openPlanner(page);
-  const raw=await readBoard(page);
-  if(raw.dates.length<1||raw.resources.length<1)throw new Error(`Planner structure was not recognized (${raw.dates.length} dates, ${raw.resources.length} employees).`);
-  const missingDates=planningDates().filter(date=>!raw.dates.some(item=>item.date===date));
-  if(missingDates.length)throw new Error(`Planner did not expose all required dates: ${missingDates.join(", ")}.`);
-  const data=assemble(raw); validate(data);
+  const data=await readPlanningWindow(page); validate(data);
   await mkdir(path.dirname(OUTPUT),{recursive:true});
   const temp=`${OUTPUT}.tmp`;
   await writeFile(temp,`${JSON.stringify(data,null,2)}\n`,{encoding:"utf8",mode:0o600});
