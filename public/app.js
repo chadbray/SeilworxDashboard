@@ -3,6 +3,8 @@ const PLANNING_REFRESH_MS = 5 * 60 * 1000;
 const CERTIFICATE_REFRESH_MS = 5 * 60 * 1000;
 const WEATHER_REFRESH_MS = 3 * 60 * 60 * 1000;
 const SCREEN_DURATIONS = [3 * 60 * 1000, 2 * 60 * 1000, 2 * 60 * 1000];
+const WEATHER_PAST_DAYS = 2;
+const WEATHER_FORECAST_DAYS = 6;
 const WEATHER_FIELDS = "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max";
 
 const planning = document.querySelector("#planning");
@@ -49,13 +51,14 @@ function renderSchedule(data){
 
 function renderWeatherLoading(){
   if(!schedule)return;
-  weatherRows.innerHTML=schedule.days.map((d,i)=>`<div class="weather-row${i===0?" today":""}"><div class="loading">Wird geladen …</div></div>`).join("");
+  const today=berlinToday();
+  weatherRows.innerHTML=schedule.days.map(day=>`<div class="weather-row${day.date===today?" today":""}"><div class="loading">Wird geladen …</div></div>`).join("");
 }
 
 const finite=(...values)=>values.find(v=>typeof v==="number"&&Number.isFinite(v))??0;
 async function weatherJson(endpoint){
   const url=new URL(endpoint);
-  url.search=new URLSearchParams({latitude:"50.7753",longitude:"6.0839",daily:WEATHER_FIELDS,timezone:BERLIN,forecast_days:"8",wind_speed_unit:"kmh"});
+  url.search=new URLSearchParams({latitude:"50.7753",longitude:"6.0839",daily:WEATHER_FIELDS,timezone:BERLIN,past_days:String(WEATHER_PAST_DAYS),forecast_days:String(WEATHER_FORECAST_DAYS),wind_speed_unit:"kmh"});
   const response=await fetch(url,{cache:"no-store"});
   if(!response.ok)throw new Error("Wetter nicht verfügbar");
   return response.json();
@@ -64,6 +67,7 @@ async function weatherJson(endpoint){
 async function refreshWeather(){
   if(!schedule)return;
   try{
+    const today=berlinToday();
     const [dwdResult,ecmwfResult]=await Promise.allSettled([weatherJson("https://api.open-meteo.com/v1/dwd-icon"),weatherJson("https://api.open-meteo.com/v1/ecmwf")]);
     const primary=dwdResult.status==="fulfilled"?dwdResult.value:await weatherJson("https://api.open-meteo.com/v1/forecast");
     const alternate=ecmwfResult.status==="fulfilled"?ecmwfResult.value:null;
@@ -72,14 +76,15 @@ async function refreshWeather(){
       const ai=altIndex.get(date); const a=alternate?.daily;
       return [date,{code:finite(primary.daily.weather_code[i],a?.weather_code?.[ai],3),max:finite(primary.daily.temperature_2m_max[i],a?.temperature_2m_max?.[ai]),min:finite(primary.daily.temperature_2m_min[i],a?.temperature_2m_min?.[ai]),rain:finite(primary.daily.precipitation_sum[i],a?.precipitation_sum?.[ai]),chance:finite(primary.daily.precipitation_probability_max[i],a?.precipitation_probability_max?.[ai]),wind:finite(primary.daily.wind_speed_10m_max[i],a?.wind_speed_10m_max?.[ai]),gust:finite(primary.daily.wind_gusts_10m_max[i],a?.wind_gusts_10m_max?.[ai])}];
     }));
-    weatherRows.innerHTML=schedule.days.map((day,i)=>{
+    weatherRows.innerHTML=schedule.days.map(day=>{
       const w=byDate.get(day.date);
-      if(!w)return `<div class="weather-row${i===0?" today":""}"><div class="loading">Nicht verfügbar</div></div>`;
-      return `<div class="weather-row${i===0?" today":""}"><div class="weather-top"><span class="weather-date">${fmt(day.date,{weekday:"short",day:"2-digit",month:"2-digit"})}</span><span><span class="weather-icon">${icon(w.code)}</span> <span class="temps">${Math.round(w.max)}°<em>/${Math.round(w.min)}°</em></span></span></div><div class="weather-bottom"><span>🌧 <strong>${Math.round(w.chance)}%</strong> ${w.rain.toFixed(1)} mm</span><span>💨 <strong>${Math.round(w.wind)}/${Math.round(w.gust)}</strong></span></div></div>`;
+      if(!w)return `<div class="weather-row${day.date===today?" today":""}"><div class="loading">Nicht verfügbar</div></div>`;
+      return `<div class="weather-row${day.date===today?" today":""}"><div class="weather-top"><span class="weather-date">${fmt(day.date,{weekday:"short",day:"2-digit",month:"2-digit"})}</span><span><span class="weather-icon">${icon(w.code)}</span> <span class="temps">${Math.round(w.max)}°<em>/${Math.round(w.min)}°</em></span></span></div><div class="weather-bottom"><span>🌧 <strong>${Math.round(w.chance)}%</strong> ${w.rain.toFixed(1)} mm</span><span>💨 <strong>${Math.round(w.wind)}/${Math.round(w.gust)}</strong></span></div></div>`;
     }).join("");
     document.querySelector("#weatherTime").textContent=`Wetterstand: ${new Intl.DateTimeFormat("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:BERLIN}).format(new Date())} Uhr · automatisch alle 3 Stunden`;
   }catch(error){
-    weatherRows.innerHTML=schedule.days.map((d,i)=>`<div class="weather-row${i===0?" today":""}"><div class="loading">Nicht verfügbar</div></div>`).join("");
+    const today=berlinToday();
+    weatherRows.innerHTML=schedule.days.map(day=>`<div class="weather-row${day.date===today?" today":""}"><div class="loading">Nicht verfügbar</div></div>`).join("");
     document.querySelector("#weatherTime").textContent="Wetter derzeit nicht verfügbar";
   }
 }

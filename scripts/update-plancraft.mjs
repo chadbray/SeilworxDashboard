@@ -6,6 +6,8 @@ const EMAIL=process.env.PLANCRAFT_EMAIL;
 const PASSWORD=process.env.PLANCRAFT_PASSWORD;
 const PLANNER_URL=process.env.PLANCRAFT_PLANNER_URL || "https://plancraft.com/app/zqAGTaKY2nys/planner";
 const OUTPUT=path.resolve("public/schedule.json");
+const PLANNING_START_OFFSET=-2;
+const PLANNING_DAYS=8;
 
 if(!EMAIL||!PASSWORD){
   console.error("PLANCRAFT_EMAIL and PLANCRAFT_PASSWORD are required.");
@@ -16,6 +18,10 @@ function berlinDate(offset=0){
   const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Berlin",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(Date.now()+offset*86400000));
   const get=t=>parts.find(p=>p.type===t)?.value;
   return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+function planningDates(){
+  return Array.from({length:PLANNING_DAYS},(_,i)=>berlinDate(PLANNING_START_OFFSET+i));
 }
 
 function clean(value){return String(value??"").replace(/\s+/g," ").trim();}
@@ -92,11 +98,11 @@ async function readBoard(page){
       return absenceTypes[marker]?{...absenceTypes[marker],resourceId:el.closest('[data-resource-id]')?.getAttribute('data-resource-id'),...rect(el)}:null;
     }).filter(x=>x&&x.width>1&&x.height>1);
     return {dates:uniqueDates,resources,events,absences};
-  },{wantedDates:Array.from({length:8},(_,i)=>berlinDate(i))});
+  },{wantedDates:planningDates()});
 }
 
 function assemble(raw){
-  const days=Array.from({length:8},(_,i)=>({date:berlinDate(i),projects:[],absences:[]}));
+  const days=planningDates().map(date=>({date,projects:[],absences:[]}));
   const projectMaps=new Map(days.map(d=>[d.date,new Map()]));
   const absenceMaps=new Map(days.map(d=>[d.date,new Map()]));
   for(const event of raw.events){
@@ -136,6 +142,8 @@ try{
   await login(page); await openPlanner(page);
   const raw=await readBoard(page);
   if(raw.dates.length<1||raw.resources.length<1)throw new Error(`Planner structure was not recognized (${raw.dates.length} dates, ${raw.resources.length} employees).`);
+  const missingDates=planningDates().filter(date=>!raw.dates.some(item=>item.date===date));
+  if(missingDates.length)throw new Error(`Planner did not expose all required dates: ${missingDates.join(", ")}.`);
   const data=assemble(raw); validate(data);
   await mkdir(path.dirname(OUTPUT),{recursive:true});
   const temp=`${OUTPUT}.tmp`;
