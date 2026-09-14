@@ -63,9 +63,13 @@ async function readUpcomingProjects(page){
   const menu=page.locator('[role="menu"]').first();
   await menu.getByText("Datum festlegen",{exact:true}).click();
   await menu.getByText("Terminiert",{exact:true}).click();
-  await page.waitForTimeout(1200);
-  await statusFilter.click().catch(()=>{});
-  return page.locator('a[href*="/folders/"][title]').evaluateAll(links=>[...new Set(links.map(link=>link.getAttribute("title")?.trim()).filter(title=>title&&title!=="Projekt erstellen"))]);
+  await page.getByRole("button",{name:/^(Datum festlegen|Terminiert)(?:\s|$)/}).first().waitFor({state:"visible",timeout:30000});
+  await page.waitForTimeout(1500);
+  return page.locator('a[href*="/folders/"]').evaluateAll(links=>[...new Set(links.map(link=>{
+    const href=link.getAttribute("href")||"";
+    if(!/\/folders\/[^/]+$/.test(new URL(href,location.href).pathname))return "";
+    return (link.getAttribute("title")||link.textContent||"").replace(/\s+/g," ").trim();
+  }).filter(Boolean))]);
 }
 
 async function login(page){
