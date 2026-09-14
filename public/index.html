@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20260911-02" />
+    <link rel="stylesheet" href="style.css?v=20260914-01" />
   </head>
   <body>
     <header class="topbar">
@@ -29,6 +29,11 @@
             <div class="weather-head"><div><small>Wetter</small><strong>Aachen · 8 Tage</strong></div><span>☁</span></div>
             <div id="weatherRows"></div>
           </aside>
+        </section>
+
+        <section class="upcoming-projects" aria-live="polite">
+          <strong>Kommende Projekte</strong>
+          <span id="upcomingProjects">Wird geladen …</span>
         </section>
 
         <footer><span>Planungsdaten werden werktags stündlich von 05:00 bis 17:00 Uhr geprüft.</span><span id="weatherTime">Wetter wird geladen</span></footer>
@@ -129,6 +134,6 @@
         <button type="button" data-screen-target="2" aria-label="Wichtige Informationen anzeigen"></button>
       </div>
     </main>
-    <script type="module" src="app.js?v=20260911-01"></script>
+    <script type="module" src="app.js?v=20260914-01"></script>
   </body>
 </html>

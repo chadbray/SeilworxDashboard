@@ -5,6 +5,7 @@ import path from "node:path";
 const EMAIL=process.env.PLANCRAFT_EMAIL;
 const PASSWORD=process.env.PLANCRAFT_PASSWORD;
 const PLANNER_URL=process.env.PLANCRAFT_PLANNER_URL || "https://plancraft.com/app/zqAGTaKY2nys/planner";
+const PROJECTS_URL=new URL("../folders",PLANNER_URL).href;
 const OUTPUT=path.resolve("public/schedule.json");
 const PLANNING_START_OFFSET=-2;
 const PLANNING_DAYS=8;
@@ -46,12 +47,25 @@ async function gotoWithRetry(page,url){
   throw lastError;
 }
 function validate(data){
-  if(!data||!Array.isArray(data.days)||data.days.length!==8)throw new Error("Expected exactly eight planning days.");
+  if(!data||!Array.isArray(data.days)||data.days.length!==8||!Array.isArray(data.upcomingProjects))throw new Error("Expected exactly eight planning days and an upcoming-project list.");
   for(const day of data.days){
     if(!/^\d{4}-\d{2}-\d{2}$/.test(day.date)||!Array.isArray(day.projects)||!Array.isArray(day.absences))throw new Error("Invalid planning response.");
     for(const project of day.projects)if(!project.name||!Array.isArray(project.team)||project.team.length<1)throw new Error("A project is missing its name or assigned team.");
     for(const absence of day.absences)if(!["sick","holiday","unpaid-holiday"].includes(absence.type)||!absence.label||!Array.isArray(absence.team)||absence.team.length<1)throw new Error("An absence is missing its type, label, or employees.");
   }
+}
+
+async function readUpcomingProjects(page){
+  await gotoWithRetry(page,PROJECTS_URL);
+  await page.locator('input[name="search"], input[placeholder*="Suche"]').first().waitFor({state:"visible",timeout:30000});
+  const statusFilter=page.getByRole("button",{name:/^Status(?:\s|$)/}).first();
+  await statusFilter.click();
+  const menu=page.locator('[role="menu"]').first();
+  await menu.getByText("Datum festlegen",{exact:true}).click();
+  await menu.getByText("Terminiert",{exact:true}).click();
+  await page.waitForTimeout(1200);
+  await statusFilter.click().catch(()=>{});
+  return page.locator('a[href*="/folders/"][title]').evaluateAll(links=>[...new Set(links.map(link=>link.getAttribute("title")?.trim()).filter(title=>title&&title!=="Projekt erstellen"))]);
 }
 
 async function login(page){
@@ -167,7 +181,9 @@ const browser=await chromium.launch({headless:true});
 try{
   const page=await browser.newPage({viewport:{width:2800,height:1800},locale:"de-DE",timezoneId:"Europe/Berlin"});
   await login(page); await openPlanner(page);
-  const data=await readPlanningWindow(page); validate(data);
+  const data=await readPlanningWindow(page);
+  data.upcomingProjects=(await readUpcomingProjects(page)).sort((a,b)=>a.localeCompare(b,"de"));
+  validate(data);
   await mkdir(path.dirname(OUTPUT),{recursive:true});
   const temp=`${OUTPUT}.tmp`;
   await writeFile(temp,`${JSON.stringify(data,null,2)}\n`,{encoding:"utf8",mode:0o600});

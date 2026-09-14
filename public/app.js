@@ -9,6 +9,7 @@ const WEATHER_FIELDS = "weather_code,temperature_2m_max,temperature_2m_min,preci
 
 const planning = document.querySelector("#planning");
 const weatherRows = document.querySelector("#weatherRows");
+const upcomingProjects = document.querySelector("#upcomingProjects");
 let schedule = null;
 let certificateData = null;
 let currentScreen = 0;
@@ -46,6 +47,8 @@ function renderSchedule(data){
     const cards=projectCards||absenceCards?`${projectCards}${absenceCards}`:`<div class="empty"><div><strong>${weekend?"Wochenende":"Keine Einsätze"}</strong><span>Keine Mitarbeiter eingeteilt</span></div></div>`;
     return `<article class="day${today?" today":""}${weekend?" weekend":""}"><header class="day-head"><small>${fmt(day.date,{weekday:"long"})}${today?'<span class="today-pill">Heute</span>':""}</small><strong>${fmt(day.date,{day:"2-digit",month:"short"})}</strong></header><div class="projects">${cards}</div></article>`;
   }).join("");
+  const projectNames=Array.isArray(data.upcomingProjects)?data.upcomingProjects:[];
+  upcomingProjects.textContent=projectNames.length?projectNames.join(",  "):"Keine kommenden Projekte";
   renderWeatherLoading();
 }
 
@@ -115,7 +118,7 @@ async function refreshPlanning(){
   if(!response.ok)throw new Error("Planungsdaten konnten nicht geladen werden");
   const data=await response.json();
   if(!Array.isArray(data.days)||data.days.length!==8)throw new Error("Ungültige Planungsdaten");
-  if(!schedule||data.checkedAt!==schedule.checkedAt||JSON.stringify(data.days)!==JSON.stringify(schedule.days)){
+  if(!schedule||data.checkedAt!==schedule.checkedAt||JSON.stringify(data.days)!==JSON.stringify(schedule.days)||JSON.stringify(data.upcomingProjects)!==JSON.stringify(schedule.upcomingProjects)){
     renderSchedule(data);
     await refreshWeather();
   }
