@@ -70,7 +70,7 @@ async function readUpcomingProjects(page){
     const pathname=new URL(href,location.href).pathname;
     if(!/\/folders\/[^/]+$/.test(pathname)||pathname.endsWith("/folders/create"))return "";
     const name=(link.getAttribute("title")||link.textContent||"").replace(/\s+/g," ").trim();
-    return ["Neues Projekt","Projekt erstellen"].includes(name)?"":name;
+    return ["Neues Projekt","Projekt erstellen","Aixtron Abflussrohr"].includes(name)?"":name;
   }).filter(Boolean))]);
 }
 
