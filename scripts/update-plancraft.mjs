@@ -67,8 +67,10 @@ async function readUpcomingProjects(page){
   await page.waitForTimeout(1500);
   return page.locator('a[href*="/folders/"]').evaluateAll(links=>[...new Set(links.map(link=>{
     const href=link.getAttribute("href")||"";
-    if(!/\/folders\/[^/]+$/.test(new URL(href,location.href).pathname))return "";
-    return (link.getAttribute("title")||link.textContent||"").replace(/\s+/g," ").trim();
+    const pathname=new URL(href,location.href).pathname;
+    if(!/\/folders\/[^/]+$/.test(pathname)||pathname.endsWith("/folders/create"))return "";
+    const name=(link.getAttribute("title")||link.textContent||"").replace(/\s+/g," ").trim();
+    return ["Neues Projekt","Projekt erstellen"].includes(name)?"":name;
   }).filter(Boolean))]);
 }
 
