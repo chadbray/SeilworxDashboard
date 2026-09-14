@@ -5,7 +5,7 @@ import path from "node:path";
 const EMAIL=process.env.PLANCRAFT_EMAIL;
 const PASSWORD=process.env.PLANCRAFT_PASSWORD;
 const PLANNER_URL=process.env.PLANCRAFT_PLANNER_URL || "https://plancraft.com/app/zqAGTaKY2nys/planner";
-const PROJECTS_URL=new URL("../folders",PLANNER_URL).href;
+const PROJECTS_URL=new URL("folders",PLANNER_URL).href;
 const OUTPUT=path.resolve("public/schedule.json");
 const PLANNING_START_OFFSET=-2;
 const PLANNING_DAYS=8;
