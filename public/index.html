@@ -8,7 +8,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=20260914-01" />
+    <link rel="stylesheet" href="style.css?v=20260922-01" />
+    <style>
+
+/* Page 4: jobsite workflow and shared team responsibility */
+.jobsite-team{min-height:82px;margin-bottom:9px;padding:10px 14px;display:flex;align-items:center;gap:12px;border-radius:10px;background:var(--brown);color:#fff}
+.jobsite-team-icon{font-size:25px}.jobsite-team small{display:block;color:var(--blue);font-size:8px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+.jobsite-team h2{margin:2px 0 3px;font-size:15px;line-height:1.1}.jobsite-team p{margin:0;color:rgba(255,255,255,.84);font-size:9px;line-height:1.3}
+.jobsite-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.jobsite-card{min-width:0;min-height:174px;overflow:hidden;border:1px solid var(--line);border-top:4px solid var(--blue);border-radius:10px;background:#fff;box-shadow:0 8px 24px rgba(88,73,57,.08)}
+.jobsite-card:nth-child(2),.jobsite-card:nth-child(5){border-top-color:#d29a32}.jobsite-card:nth-child(3),.jobsite-card:nth-child(6){border-top-color:#4d8aa8}
+.jobsite-card header{min-height:55px;padding:8px 10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);background:#f8f9f9}
+.jobsite-card header>span{width:29px;height:29px;flex:0 0 29px;display:grid;place-items:center;border-radius:50%;background:#fff;font-size:16px}
+.jobsite-card small{display:block;color:var(--blue);font-size:7px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.jobsite-card h2{margin:2px 0 0;color:var(--brown);font-size:12px;line-height:1.1}
+.jobsite-card ul{margin:0;padding:9px 12px 8px 26px;color:rgba(45,41,38,.84);font-size:9px;line-height:1.35}.jobsite-card li{margin-bottom:5px}
+.jobsite-check{min-height:55px;margin-top:9px;padding:8px 12px;display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:9px;background:#fff;box-shadow:0 6px 18px rgba(88,73,57,.06)}
+.jobsite-check>span{font-size:20px}.jobsite-check h2{margin:0 0 3px;color:var(--brown);font-size:11px}.jobsite-check p{margin:0;color:rgba(45,41,38,.72);font-size:8.5px;line-height:1.3}
+@media(max-width:1200px){.jobsite-team{min-height:74px}.jobsite-card{min-height:165px}.jobsite-card ul{font-size:8px}.jobsite-card h2{font-size:10px}}
+@media(max-height:720px){.jobsite-team{min-height:65px;padding:7px 11px}.jobsite-team h2{font-size:12px}.jobsite-team p{font-size:7.5px}.jobsite-grid{gap:6px}.jobsite-card{min-height:142px}.jobsite-card header{min-height:43px;padding:5px 7px}.jobsite-card header>span{width:23px;height:23px;flex-basis:23px;font-size:12px}.jobsite-card h2{font-size:9px}.jobsite-card ul{padding:6px 8px 5px 20px;font-size:7px}.jobsite-card li{margin-bottom:3px}.jobsite-check{min-height:43px;margin-top:6px;padding:5px 9px}.jobsite-check h2{font-size:9px}.jobsite-check p{font-size:7px}}
+</style>
   </head>
   <body>
     <header class="topbar">
@@ -128,12 +146,48 @@
         <footer><span>Wichtige Informationen bitte immer im jeweiligen Projekt in Plancraft hinterlegen.</span><span>Teamkommunikation &amp; Zeiterfassung</span></footer>
       </section>
 
-      <div class="screen-dots" aria-label="Ansicht wechseln">
+  
+    <section class="screen" data-screen="jobsite" aria-hidden="true">
+      <section class="intro">
+        <div>
+          <h1>Gemeinsam sicher und sauber arbeiten</h1>
+          <p>Der kurze Ablauf für jeden Auftrag – von der Anfahrt bis zur Übergabe</p>
+        </div>
+        <div class="freshness">
+          <strong>Baustellenablauf</strong>
+          <span>PlanCraft &amp; Teamarbeit</span>
+        </div>
+      </section>
+
+      <section class="jobsite-team">
+        <span class="jobsite-team-icon">👥</span>
+        <div>
+          <small>Wir arbeiten als Team</small>
+          <h2>Der Teamleiter koordiniert – die Verantwortung liegt bei allen.</h2>
+          <p>Jedes Teammitglied denkt mit, unterstützt den Teamleiter, meldet Probleme, dokumentiert die Arbeit und hilft beim Abschluss. Nicht alles ist Aufgabe des Teamleiters.</p>
+        </div>
+      </section>
+
+      <section class="jobsite-grid">
+        <article class="jobsite-card"><header><span>🚐</span><div><small>Vor der Ankunft</small><h2>Verspätungen sofort melden</h2></div></header><ul><li>Frühzeitig in PlanCraft schreiben.</li><li>Auftraggeber mit realistischer Ankunftszeit informieren.</li><li>Nicht erreichbare Kontakte dokumentieren und Büro informieren.</li></ul></article>
+        <article class="jobsite-card"><header><span>📍</span><div><small>Ankunft</small><h2>Auftrag gemeinsam klären</h2></div></header><ul><li>Sichere Ankunft in PlanCraft bestätigen.</li><li>Anmeldung, Einweisung und Zugang erledigen.</li><li>Umfang, Prioritäten, Regeln, Material und Geräte prüfen.</li></ul></article>
+        <article class="jobsite-card"><header><span>📷</span><div><small>Vor dem Start</small><h2>Zustand dokumentieren</h2></div></header><ul><li>Klare Vorher-Fotos machen.</li><li>Schäden und gefährdete Bereiche festhalten.</li><li>Abweichungen zuerst klären und dokumentieren.</li></ul></article>
+        <article class="jobsite-card"><header><span>🔧</span><div><small>Während der Arbeit</small><h2>Kommunizieren und mitdenken</h2></div></header><ul><li>Zur Tagesmitte kurz in PlanCraft melden.</li><li>Probleme und Verzögerungen sofort erklären.</li><li>Zwischenfotos bei verdeckten oder zusätzlichen Arbeiten machen.</li></ul></article>
+        <article class="jobsite-card"><header><span>✅</span><div><small>Tagesende</small><h2>Gemeinsam sauber abschließen</h2></div></header><ul><li>Arbeit mit Ansprechpartner prüfen.</li><li>Nachher-Fotos, Unterschrift und Abschlussmeldung sichern.</li><li>Alle helfen beim Aufräumen, Zählen und Einpacken.</li></ul></article>
+        <article class="jobsite-card"><header><span>🔄</span><div><small>Wenn es weitergeht</small><h2>Klare Übergabe hinterlassen</h2></div></header><ul><li>Erledigtes, offene Punkte und nächsten Schritt notieren.</li><li>Material, Geräte, Zugang und Kundenabsprachen festhalten.</li><li>Arbeitszeiten im Team abgleichen; Abweichungen erklären.</li></ul></article>
+      </section>
+
+      <section class="jobsite-check"><span>🧾</span><div><h2>Letzter Check vor dem Verlassen</h2><p>Arbeitsstand klar · Kunde informiert · Fotos gespeichert · Stundenzettel unterschrieben · Baustelle sauber · Ausrüstung vollständig · PlanCraft aktuell</p></div></section>
+      <footer><span>Wichtige Informationen immer im richtigen PlanCraft-Projekt hinterlegen.</span><span>Baustellenablauf &amp; Teamarbeit</span></footer>
+    </section>
+
+    <div class="screen-dots" aria-label="Ansicht wechseln">
         <button class="active" type="button" data-screen-target="0" aria-label="Einsatzplanung anzeigen"></button>
         <button type="button" data-screen-target="1" aria-label="Schulungen und Termine anzeigen"></button>
         <button type="button" data-screen-target="2" aria-label="Wichtige Informationen anzeigen"></button>
+      <button type="button" data-screen-target="3" aria-label="Baustellenablauf anzeigen"></button>
       </div>
     </main>
-    <script type="module" src="app.js?v=20260914-01"></script>
+    <script type="module" src="app.js?v=20260922-01"></script>
   </body>
 </html>
