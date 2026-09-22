@@ -2,7 +2,7 @@ const BERLIN = "Europe/Berlin";
 const PLANNING_REFRESH_MS = 5 * 60 * 1000;
 const CERTIFICATE_REFRESH_MS = 5 * 60 * 1000;
 const WEATHER_REFRESH_MS = 3 * 60 * 60 * 1000;
-const SCREEN_DURATIONS = [3 * 60 * 1000, 2 * 60 * 1000, 2 * 60 * 1000];
+const SCREEN_DURATIONS = [3 * 60 * 1000, 2 * 60 * 1000, 2 * 60 * 1000, 2 * 60 * 1000];
 const WEATHER_PAST_DAYS = 2;
 const WEATHER_FORECAST_DAYS = 6;
 const WEATHER_FIELDS = "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max";
@@ -166,6 +166,7 @@ function renderCertificates(data){
 function screenIndexFromHash(){
   if(window.location.hash==="#certificates")return 1;
   if(window.location.hash==="#info")return 2;
+  if(window.location.hash==="#jobsite")return 3;
   return 0;
 }
 
@@ -179,9 +180,9 @@ function showScreen(index,{updateHash=false}={}){
     button.classList.toggle("active",buttonIndex===currentScreen);
     button.setAttribute("aria-current",buttonIndex===currentScreen?"page":"false");
   });
-  document.querySelector("#viewTitle").textContent=currentScreen===0?"Einsatzplanung · Aachen":currentScreen===1?"Schulungen & Termine":"Wichtige Informationen";
+  document.querySelector("#viewTitle").textContent=["Einsatzplanung · Aachen","Schulungen & Termine","Wichtige Informationen","Baustellenablauf"][currentScreen]??"Einsatzplanung · Aachen";
   if(updateHash){
-    const hash=currentScreen===1?"#certificates":currentScreen===2?"#info":"#planning";
+    const hash=["#planning","#certificates","#info","#jobsite"][currentScreen]??"#planning";
     history.replaceState(null,"",hash);
   }
 }
@@ -189,7 +190,7 @@ function showScreen(index,{updateHash=false}={}){
 function scheduleNextScreen(){
   window.clearTimeout(rotationTimer);
   rotationTimer=window.setTimeout(()=>{
-    showScreen((currentScreen+1)%3,{updateHash:true});
+    showScreen((currentScreen+1)%4,{updateHash:true});
     scheduleNextScreen();
   },SCREEN_DURATIONS[currentScreen]);
 }
