@@ -92,7 +92,7 @@ async function readPlannedProjectNames(page,throughDate){
     if(!visible.dates.length)throw new Error("Planner dates were not recognized while checking upcoming projects.");
     for(const name of visible.names)planned.add(clean(name).replace(/^\d{1,2}:\d{2}\s*[–-]\s*\d{1,2}:\d{2}\s*/,""));
     if(visible.dates.sort().at(-1)>=throughDate)return planned;
-    await page.locator(".fc-next-button").first().click();
+    await page.getByRole("button",{name:/nächste|next/i}).first().click();
   }
   throw new Error(`Planner did not reach ${throughDate} while checking upcoming projects.`);
 }
