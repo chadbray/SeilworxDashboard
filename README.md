@@ -6,6 +6,8 @@ The TV display rotates automatically between the planning view (three minutes) a
 
 Scheduled runs generate the current employee assignments inside the deployment artifact. They do **not** create new planning-data commits in this public repository.
 
+The **Noch nicht eingeplant** list shows active projects in PlanCraft's **Datum festlegen** or **Terminiert** status only while their scheduled end date has not passed and no employee allocation appears in the planner. It excludes projects already shown in the dashboard calendar and checks future planner dates through the latest listed project date (at least 30 days ahead).
+
 ## One-time setup
 
 ### 1. Add the two PlanCraft secrets

@@ -65,13 +65,36 @@ async function readUpcomingProjects(page){
   await menu.getByText("Terminiert",{exact:true}).click();
   await page.getByRole("button",{name:/^(Datum festlegen|Terminiert)(?:\s|$)/}).first().waitFor({state:"visible",timeout:30000});
   await page.waitForTimeout(1500);
-  return page.locator('a[href*="/folders/"]').evaluateAll(links=>[...new Set(links.map(link=>{
+  return page.locator('a[href*="/folders/"]').evaluateAll(links=>links.map(link=>{
     const href=link.getAttribute("href")||"";
     const pathname=new URL(href,location.href).pathname;
-    if(!/\/folders\/[^/]+$/.test(pathname)||pathname.endsWith("/folders/create"))return "";
+    if(!/\/folders\/[^/]+$/.test(pathname)||pathname.endsWith("/folders/create"))return null;
     const name=(link.getAttribute("title")||link.textContent||"").replace(/\s+/g," ").trim();
-    return ["Neues Projekt","Projekt erstellen","Aixtron Abflussrohr"].includes(name)?"":name;
-  }).filter(Boolean))]);
+    if(["Neues Projekt","Projekt erstellen","Aixtron Abflussrohr"].includes(name))return null;
+    const period=link.closest("tr")?.querySelector("td:nth-child(5)")?.textContent?.trim()||"";
+    const end=period.match(/(\d{2})\.(\d{2})\.(\d{4})$/);
+    return {name,endDate:end?`${end[3]}-${end[2]}-${end[1]}`:null};
+  }).filter(Boolean).filter((project,index,all)=>all.findIndex(other=>other.name===project.name)===index));
+}
+
+async function readPlannedProjectNames(page,throughDate){
+  await gotoWithRetry(page,PLANNER_URL);
+  await openPlanner(page);
+  const monthButton=page.getByRole("button",{name:"Monat",exact:true});
+  await monthButton.click();
+  const planned=new Set();
+  for(let window=0;window<30;window++){
+    await page.waitForTimeout(1500);
+    const visible=await page.evaluate(()=>({
+      dates:[...document.querySelectorAll('.fc-timeline-slot[data-date]')].map(el=>el.getAttribute("data-date")?.slice(0,10)).filter(Boolean),
+      names:[...document.querySelectorAll('a.fc-event.allocation')].filter(el=>el.closest('[data-resource-id]')).map(el=>el.querySelector('.fc-event-title,.fc-event-main-frame,.fc-event-main')?.textContent||el.textContent)
+    }));
+    if(!visible.dates.length)throw new Error("Planner dates were not recognized while checking upcoming projects.");
+    for(const name of visible.names)planned.add(clean(name).replace(/^\d{1,2}:\d{2}\s*[–-]\s*\d{1,2}:\d{2}\s*/,""));
+    if(visible.dates.sort().at(-1)>=throughDate)return planned;
+    await page.locator(".fc-next-button").first().click();
+  }
+  throw new Error(`Planner did not reach ${throughDate} while checking upcoming projects.`);
 }
 
 async function login(page){
@@ -188,7 +211,13 @@ try{
   const page=await browser.newPage({viewport:{width:2800,height:1800},locale:"de-DE",timezoneId:"Europe/Berlin"});
   await login(page); await openPlanner(page);
   const data=await readPlanningWindow(page);
-  data.upcomingProjects=(await readUpcomingProjects(page)).sort((a,b)=>a.localeCompare(b,"de"));
+  const candidates=await readUpcomingProjects(page);
+  const today=berlinDate();
+  const inThirtyDays=berlinDate(30);
+  const throughDate=candidates.reduce((latest,project)=>project.endDate&&project.endDate>latest?project.endDate:latest,inThirtyDays);
+  const planned=await readPlannedProjectNames(page,throughDate);
+  for(const day of data.days)for(const project of day.projects)planned.add(project.name);
+  data.upcomingProjects=candidates.filter(project=>(!project.endDate||project.endDate>=today)&&!planned.has(project.name)).map(project=>project.name).sort((a,b)=>a.localeCompare(b,"de"));
   validate(data);
   await mkdir(path.dirname(OUTPUT),{recursive:true});
   const temp=`${OUTPUT}.tmp`;
