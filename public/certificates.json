@@ -70,6 +70,13 @@
   ],
   "appointments": [
     {
+      "name": "Alexander Esser",
+      "type": "FISAT Level 1",
+      "booked": true,
+      "date": "2026-10-19",
+      "endDate": "2026-10-23"
+    },
+    {
       "name": "Stefanie Flohre",
       "type": "FISAT Level 2",
       "booked": true,
