@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-09-25",
+  "asOf": "2026-09-30",
   "employees": [
     {
       "name": "Dominic Malina",
@@ -75,6 +75,20 @@
     }
   ],
   "appointments": [
+    {
+      "name": "Alexander Esser",
+      "type": "Erste Hilfe",
+      "booked": true,
+      "date": "2026-10-06",
+      "time": "08:30–16:30 Uhr"
+    },
+    {
+      "name": "Alexander Esser",
+      "type": "Medizin",
+      "booked": true,
+      "date": "2026-10-09",
+      "time": "08:20 Uhr"
+    },
     {
       "name": "Dominic Malina",
       "type": "Kletterzertifikat",
