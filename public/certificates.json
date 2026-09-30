@@ -70,6 +70,13 @@
   ],
   "appointments": [
     {
+      "name": "Stefanie Flohre",
+      "type": "FISAT Level 2",
+      "booked": true,
+      "date": "2026-11-23",
+      "endDate": "2026-11-27"
+    },
+    {
       "name": "Alexander Esser",
       "type": "Erste Hilfe",
       "booked": true,
