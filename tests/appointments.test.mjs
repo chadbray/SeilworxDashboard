@@ -30,6 +30,7 @@ test("both KSK registrations contain all six days and the Berlin daily schedule"
   for (const course of courses) {
     assert.equal(course.booked, false);
     assert.equal(course.status, "pending");
+    assert.equal(course.displayLabel, "FISAT Level 3");
     assert.equal(course.date, "2027-04-02");
     assert.equal(course.endDate, "2027-04-07");
     assert.equal(course.time, "täglich 09:00–17:00 Uhr");
@@ -43,7 +44,9 @@ test("future courses are visible now without hiding existing booked appointments
   const html = render("2026-10-05");
   for (const name of names) assert.ok(html.includes(name));
   assert.equal((html.match(/class="appointment booked"/g) ?? []).length, 4);
-  assert.equal((html.match(/ · unbestätigt/g) ?? []).length, 2);
+  assert.equal((html.match(/<span>FISAT Level 3<\/span>/g) ?? []).length, 2);
+  assert.ok(!html.includes("KSK"));
+  assert.ok(!html.includes("unbestätigt"));
   assert.ok(html.includes("06.10.2026 · 08:30–16:30 Uhr"));
   for (const detail of ["KSK Ausbildungscenter", "Grüner Brunnenweg", "09:00–17:00", "Europe/Berlin", "Samstag und Sonntag", " detailed"]) assert.ok(!html.includes(detail));
   assert.equal((html.match(/<em>02\.04\.–07\.04\.2027<\/em>/g) ?? []).length, 2);

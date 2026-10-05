@@ -155,7 +155,8 @@
       "time": "täglich 09:00–17:00 Uhr",
       "timeZone": "Europe/Berlin",
       "location": "KSK Ausbildungscenter, Grüner Brunnenweg 182, 50827 Köln",
-      "note": "Inklusive Samstag und Sonntag"
+      "note": "Inklusive Samstag und Sonntag",
+      "displayLabel": "FISAT Level 3"
     },
     {
       "name": "Matias Alejandro Carvalho",
@@ -167,7 +168,8 @@
       "time": "täglich 09:00–17:00 Uhr",
       "timeZone": "Europe/Berlin",
       "location": "KSK Ausbildungscenter, Grüner Brunnenweg 182, 50827 Köln",
-      "note": "Inklusive Samstag und Sonntag"
+      "note": "Inklusive Samstag und Sonntag",
+      "displayLabel": "FISAT Level 3"
     }
   ]
 }

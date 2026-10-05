@@ -189,7 +189,7 @@ function renderCertificates(data){
   }).sort((a,b)=>a.sort-b.sort||a.name.localeCompare(b.name,"de"));
   document.querySelector("#certificateRows").innerHTML=employees.map(employee=>`<div class="certificate-row"><strong>${escapeHtml(employee.name)}</strong><span class="certificate-cell ${employee.climbingState.className}">${escapeHtml(employee.climbingState.label)}</span><span class="certificate-cell reference">${escapeHtml(certificateFmt(employee.medical))}</span><span class="certificate-cell reference">${escapeHtml(certificateFmt(employee.firstAid))}</span></div>`).join("");
   const appointments=data.appointments.filter(item=>(item.booked||(item.status==="pending"&&item.date))&&(!item.date||(item.endDate??item.date)>=berlinToday())).sort((a,b)=>(a.date??"9999-12-31").localeCompare(b.date??"9999-12-31")||a.name.localeCompare(b.name,"de"));
-  document.querySelector("#appointmentRows").innerHTML=appointments.map(item=>`<div class="appointment ${item.booked?"booked":"pending"}"><div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.type)}${item.booked?"":" · unbestätigt"}</span></div><em>${escapeHtml(appointmentFmt(item))}</em></div>`).join("");
+  document.querySelector("#appointmentRows").innerHTML=appointments.map(item=>`<div class="appointment ${item.booked?"booked":"pending"}"><div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.displayLabel??`${item.type}${item.booked?"":" · unbestätigt"}`)}</span></div><em>${escapeHtml(appointmentFmt(item))}</em></div>`).join("");
 }
 
 function screenIndexFromHash(){
