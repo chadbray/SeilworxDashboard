@@ -28,10 +28,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  update-and-publish:
+  build:
+    name: Update and package dashboard
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      artifact_name: ${{ steps.artifact-name.outputs.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -62,11 +64,27 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
+      - name: Name this build artifact
+        id: artifact-name
+        run: echo "name=github-pages-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+
       - name: Upload dashboard artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: public
+          name: ${{ steps.artifact-name.outputs.name }}
 
+  publish:
+    name: Publish dashboard
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
       - name: Publish dashboard
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: ${{ needs.build.outputs.artifact_name }}

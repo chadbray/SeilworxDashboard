@@ -43,6 +43,7 @@ An open dashboard checks for newly published planning data every five minutes an
 
 - Run now: **Actions → Update and publish dashboard → Run workflow**
 - Logs: open the latest run under **Actions**, then open the failed job and step.
+- Retry a publishing failure: choose **Re-run failed jobs**. The separate publish job reuses the successful build artifact without collecting PlanCraft again or uploading a duplicate. If all jobs are rerun, the build uses a new attempt-specific artifact name; publishing receives that exact name from the build output.
 - Pause: use **Actions → Update and publish dashboard → … → Disable workflow**.
 - Resume: use **Enable workflow** and run it once manually.
 - Change the password: update only the `PLANCRAFT_PASSWORD` repository secret.
