@@ -1,4 +1,4 @@
-const BERLIN = "Europe/Berlin";
+import { BERLIN, berlinToday, visiblePlanningDays } from "./planning-dates.js";
 const PLANNING_REFRESH_MS = 5 * 60 * 1000;
 const CERTIFICATE_REFRESH_MS = 5 * 60 * 1000;
 const WEATHER_REFRESH_MS = 3 * 60 * 60 * 1000;
@@ -11,16 +11,20 @@ const planning = document.querySelector("#planning");
 const weatherRows = document.querySelector("#weatherRows");
 const upcomingProjects = document.querySelector("#upcomingProjects");
 let schedule = null;
+let displayedDays = [];
+let renderedPlanningDate = null;
+let weatherRequest = 0;
+let planningRequest = 0;
 let certificateData = null;
 let currentScreen = 0;
 let rotationTimer = null;
 
-const dateValue = (iso) => new Date(`${iso}T12:00:00`);
+const dateValue = (iso) => new Date(`${iso}T12:00:00Z`);
 const fmt = (iso, options) => new Intl.DateTimeFormat("de-DE", {...options, timeZone:BERLIN}).format(dateValue(iso));
 const initials = (name) => name.replace(/\([^)]*\)/g, "").split(/\s+/).filter(Boolean).slice(0,2).map(p=>p[0]).join("");
 const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
 const icon = (code) => code===0?"☀":code<=3?"☁":code<=48?"≋":code<=67?"🌧":code<=77?"❄":code<=82?"🌦":"⛈";
-const certificateDate = iso => iso ? new Date(`${iso}T12:00:00`) : null;
+const certificateDate = iso => iso ? new Date(`${iso}T12:00:00Z`) : null;
 const certificateFmt = iso => iso ? new Intl.DateTimeFormat("de-DE",{timeZone:BERLIN,day:"2-digit",month:"2-digit",year:"numeric"}).format(certificateDate(iso)) : "Nicht hinterlegt";
 const appointmentFmt = item => {
   if(!item.date)return "Gebucht · Datum fehlt";
@@ -28,34 +32,36 @@ const appointmentFmt = item => {
   const dates=item.endDate?`${start}–${certificateFmt(item.endDate)}`:start;
   return item.time?`${dates} · ${item.time}`:dates;
 };
-const berlinToday = () => new Intl.DateTimeFormat("en-CA",{timeZone:BERLIN,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
 
 function renderSchedule(data){
   schedule=data;
-  const nowDate = new Intl.DateTimeFormat("en-CA",{timeZone:BERLIN,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
-  const first=data.days[0]?.date, last=data.days.at(-1)?.date;
+  const nowDate = berlinToday();
+  renderedPlanningDate=nowDate;
+  displayedDays=visiblePlanningDays(data.days);
+  const first=displayedDays[0].date, last=displayedDays.at(-1).date;
   document.querySelector("#dateRange").textContent = first && last ? `${fmt(first,{day:"numeric",month:"long"})} – ${fmt(last,{day:"numeric",month:"long",year:"numeric"})}` : "Keine Planungsdaten";
-  const checked=new Date(data.checkedAt);
-  document.querySelector("#checkedAt").textContent=`↻ Planung zuletzt geprüft: ${new Intl.DateTimeFormat("de-DE",{timeZone:BERLIN,day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}).format(checked)} Uhr`;
-  planning.innerHTML=data.days.map(day=>{
-    const weekend=[0,6].includes(dateValue(day.date).getDay());
+  const checked=data.checkedAt?new Date(data.checkedAt):null;
+  const missing=displayedDays.filter(day=>day.missing).length;
+  document.querySelector("#checkedAt").textContent=checked?`↻ Planung zuletzt geprüft: ${new Intl.DateTimeFormat("de-DE",{timeZone:BERLIN,day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}).format(checked)} Uhr${missing?` · ${missing} Tage noch nicht geladen`:""}`:"Planungsdaten noch nicht geladen";
+  planning.innerHTML=displayedDays.map(day=>{
+    const weekend=[0,6].includes(dateValue(day.date).getUTCDay());
     const today=day.date===nowDate;
     const assignedProjects=day.projects.filter(project=>Array.isArray(project.team)&&project.team.length>0);
     const absences=(Array.isArray(day.absences)?day.absences:[]).filter(status=>Array.isArray(status.team)&&status.team.length>0);
     const projectCards=assignedProjects.map(project=>`<section class="project"><h2>${escapeHtml(project.name)}</h2><div class="people">${project.team.map(person=>`<div class="person"><span class="avatar">${escapeHtml(initials(person))}</span><span>${escapeHtml(person)}</span></div>`).join("")}</div></section>`).join("");
     const absenceCards=absences.map(status=>`<section class="project absence absence-${escapeHtml(status.type)}"><h2>${status.type==="sick"?"🤒":status.type==="holiday"?"🌴":"🌵"} ${escapeHtml(status.label)}</h2><div class="people">${status.team.map(person=>`<div class="person"><span class="avatar">${escapeHtml(initials(person))}</span><span>${escapeHtml(person)}</span></div>`).join("")}</div></section>`).join("");
-    const cards=projectCards||absenceCards?`${projectCards}${absenceCards}`:`<div class="empty"><div><strong>${weekend?"Wochenende":"Keine Einsätze"}</strong><span>Keine Mitarbeiter eingeteilt</span></div></div>`;
-    return `<article class="day${today?" today":""}${weekend?" weekend":""}"><header class="day-head"><small>${fmt(day.date,{weekday:"long"})}${today?'<span class="today-pill">Heute</span>':""}</small><strong>${fmt(day.date,{day:"2-digit",month:"short"})}</strong></header><div class="projects">${cards}</div></article>`;
+    const cards=day.missing?`<div class="empty"><div><strong>Noch keine Planungsdaten</strong><span>Warten auf PlanCraft-Aktualisierung</span></div></div>`:projectCards||absenceCards?`${projectCards}${absenceCards}`:`<div class="empty"><div><strong>${weekend?"Wochenende":"Keine Einsätze"}</strong><span>Keine Mitarbeiter eingeteilt</span></div></div>`;
+    return `<article data-date="${day.date}" class="day${today?" today":""}${weekend?" weekend":""}"><header class="day-head"><small>${fmt(day.date,{weekday:"long"})}${today?'<span class="today-pill">Heute</span>':""}</small><strong>${fmt(day.date,{day:"2-digit",month:"short"})}</strong></header><div class="projects">${cards}</div></article>`;
   }).join("");
   const projectNames=Array.isArray(data.upcomingProjects)?data.upcomingProjects:[];
-  upcomingProjects.textContent=projectNames.length?projectNames.join(",  "):"Keine kommenden Projekte";
+  upcomingProjects.textContent=projectNames.length?projectNames.join(",  "):data.checkedAt?"Keine kommenden Projekte":"Noch keine Planungsdaten";
   renderWeatherLoading();
 }
 
 function renderWeatherLoading(){
   if(!schedule)return;
   const today=berlinToday();
-  weatherRows.innerHTML=schedule.days.map(day=>`<div class="weather-row${day.date===today?" today":""}"><div class="loading">Wird geladen …</div></div>`).join("");
+  weatherRows.innerHTML=displayedDays.map(day=>`<div data-date="${day.date}" class="weather-row${day.date===today?" today":""}"><div class="loading">Wird geladen …</div></div>`).join("");
 }
 
 const finite=(...values)=>values.find(v=>typeof v==="number"&&Number.isFinite(v))??0;
@@ -69,8 +75,8 @@ async function weatherJson(endpoint){
 
 async function refreshWeather(){
   if(!schedule)return;
+  const request=++weatherRequest;
   try{
-    const today=berlinToday();
     const [dwdResult,ecmwfResult]=await Promise.allSettled([weatherJson("https://api.open-meteo.com/v1/dwd-icon"),weatherJson("https://api.open-meteo.com/v1/ecmwf")]);
     const primary=dwdResult.status==="fulfilled"?dwdResult.value:await weatherJson("https://api.open-meteo.com/v1/forecast");
     const alternate=ecmwfResult.status==="fulfilled"?ecmwfResult.value:null;
@@ -79,15 +85,18 @@ async function refreshWeather(){
       const ai=altIndex.get(date); const a=alternate?.daily;
       return [date,{code:finite(primary.daily.weather_code[i],a?.weather_code?.[ai],3),max:finite(primary.daily.temperature_2m_max[i],a?.temperature_2m_max?.[ai]),min:finite(primary.daily.temperature_2m_min[i],a?.temperature_2m_min?.[ai]),rain:finite(primary.daily.precipitation_sum[i],a?.precipitation_sum?.[ai]),chance:finite(primary.daily.precipitation_probability_max[i],a?.precipitation_probability_max?.[ai]),wind:finite(primary.daily.wind_speed_10m_max[i],a?.wind_speed_10m_max?.[ai]),gust:finite(primary.daily.wind_gusts_10m_max[i],a?.wind_gusts_10m_max?.[ai])}];
     }));
-    weatherRows.innerHTML=schedule.days.map(day=>{
+    if(request!==weatherRequest)return;
+    const today=berlinToday();
+    weatherRows.innerHTML=displayedDays.map(day=>{
       const w=byDate.get(day.date);
-      if(!w)return `<div class="weather-row${day.date===today?" today":""}"><div class="loading">Nicht verfügbar</div></div>`;
-      return `<div class="weather-row${day.date===today?" today":""}"><div class="weather-top"><span class="weather-date">${fmt(day.date,{weekday:"short",day:"2-digit",month:"2-digit"})}</span><span><span class="weather-icon">${icon(w.code)}</span> <span class="temps">${Math.round(w.max)}°<em>/${Math.round(w.min)}°</em></span></span></div><div class="weather-bottom"><span>🌧 <strong>${Math.round(w.chance)}%</strong> ${w.rain.toFixed(1)} mm</span><span>💨 <strong>${Math.round(w.wind)}/${Math.round(w.gust)}</strong></span></div></div>`;
+      if(!w)return `<div data-date="${day.date}" class="weather-row${day.date===today?" today":""}"><div class="loading">Nicht verfügbar</div></div>`;
+      return `<div data-date="${day.date}" class="weather-row${day.date===today?" today":""}"><div class="weather-top"><span class="weather-date">${fmt(day.date,{weekday:"short",day:"2-digit",month:"2-digit"})}</span><span><span class="weather-icon">${icon(w.code)}</span> <span class="temps">${Math.round(w.max)}°<em>/${Math.round(w.min)}°</em></span></span></div><div class="weather-bottom"><span>🌧 <strong>${Math.round(w.chance)}%</strong> ${w.rain.toFixed(1)} mm</span><span>💨 <strong>${Math.round(w.wind)}/${Math.round(w.gust)}</strong></span></div></div>`;
     }).join("");
     document.querySelector("#weatherTime").textContent=`Wetterstand: ${new Intl.DateTimeFormat("de-DE",{hour:"2-digit",minute:"2-digit",timeZone:BERLIN}).format(new Date())} Uhr · automatisch alle 3 Stunden`;
   }catch(error){
+    if(request!==weatherRequest)return;
     const today=berlinToday();
-    weatherRows.innerHTML=schedule.days.map(day=>`<div class="weather-row${day.date===today?" today":""}"><div class="loading">Nicht verfügbar</div></div>`).join("");
+    weatherRows.innerHTML=displayedDays.map(day=>`<div data-date="${day.date}" class="weather-row${day.date===today?" today":""}"><div class="loading">Nicht verfügbar</div></div>`).join("");
     document.querySelector("#weatherTime").textContent="Wetter derzeit nicht verfügbar";
   }
 }
@@ -103,20 +112,40 @@ async function start(){
     showScreen(screenIndexFromHash());
     scheduleNextScreen();
   });
-  await refreshPlanning();
-  await refreshCertificates().catch(error=>{document.querySelector("#certificateRows").innerHTML=`<div class="certificate-error">${escapeHtml(error.message)}</div>`;});
+  renderSchedule({days:[],upcomingProjects:[]});
   window.setInterval(()=>refreshPlanning().catch(()=>{}),PLANNING_REFRESH_MS);
   window.setInterval(()=>refreshCertificates().catch(()=>{}),CERTIFICATE_REFRESH_MS);
   window.setInterval(refreshWeather,WEATHER_REFRESH_MS);
-  window.setInterval(reloadBeforeFirstUpdate,30*1000);
+  window.setInterval(()=>{refreshCalendarDay();reloadBeforeFirstUpdate();},30*1000);
+  window.addEventListener("focus",resumePlanning);
+  window.addEventListener("pageshow",resumePlanning);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)resumePlanning();});
   reloadBeforeFirstUpdate();
   scheduleNextScreen();
+  await refreshPlanning().catch(()=>refreshWeather());
+  await refreshCertificates().catch(error=>{document.querySelector("#certificateRows").innerHTML=`<div class="certificate-error">${escapeHtml(error.message)}</div>`;});
+}
+
+function refreshCalendarDay(){
+  if(!schedule||renderedPlanningDate===berlinToday())return;
+  renderSchedule(schedule);
+  if(certificateData)renderCertificates(certificateData);
+  void refreshWeather();
+}
+
+function resumePlanning(){
+  refreshCalendarDay();
+  void refreshPlanning().catch(()=>{});
 }
 
 async function refreshPlanning(){
+  // Roll forward even when the feed is unchanged or currently unreachable.
+  refreshCalendarDay();
+  const request=++planningRequest;
   const response=await fetch(`schedule.json?t=${Date.now()}`,{cache:"no-store"});
   if(!response.ok)throw new Error("Planungsdaten konnten nicht geladen werden");
   const data=await response.json();
+  if(request!==planningRequest)return;
   if(!Array.isArray(data.days)||data.days.length!==8)throw new Error("Ungültige Planungsdaten");
   if(!schedule||data.checkedAt!==schedule.checkedAt||JSON.stringify(data.days)!==JSON.stringify(schedule.days)||JSON.stringify(data.upcomingProjects)!==JSON.stringify(schedule.upcomingProjects)){
     renderSchedule(data);
@@ -196,3 +225,4 @@ function scheduleNextScreen(){
 }
 
 start().catch(error=>{planning.innerHTML=`<div class="empty"><strong>${escapeHtml(error.message)}</strong></div>`;});
+

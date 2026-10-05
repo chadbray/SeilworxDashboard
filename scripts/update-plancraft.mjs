@@ -1,14 +1,13 @@
 import { chromium } from "playwright";
 import { mkdir, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { addCalendarDays, berlinToday, planningDates } from "../public/planning-dates.js";
 
 const EMAIL=process.env.PLANCRAFT_EMAIL;
 const PASSWORD=process.env.PLANCRAFT_PASSWORD;
 const PLANNER_URL=process.env.PLANCRAFT_PLANNER_URL || "https://plancraft.com/app/zqAGTaKY2nys/planner";
 const PROJECTS_URL=new URL("folders",PLANNER_URL).href;
 const OUTPUT=path.resolve("public/schedule.json");
-const PLANNING_START_OFFSET=-2;
-const PLANNING_DAYS=8;
 
 if(!EMAIL||!PASSWORD){
   console.error("PLANCRAFT_EMAIL and PLANCRAFT_PASSWORD are required.");
@@ -16,13 +15,7 @@ if(!EMAIL||!PASSWORD){
 }
 
 function berlinDate(offset=0){
-  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Berlin",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(Date.now()+offset*86400000));
-  const get=t=>parts.find(p=>p.type===t)?.value;
-  return `${get("year")}-${get("month")}-${get("day")}`;
-}
-
-function planningDates(){
-  return Array.from({length:PLANNING_DAYS},(_,i)=>berlinDate(PLANNING_START_OFFSET+i));
+  return addCalendarDays(berlinToday(),offset);
 }
 
 function clean(value){return String(value??"").replace(/\s+/g," ").trim();}
@@ -125,13 +118,17 @@ async function readBoard(page,wantedDates){
   return page.evaluate(({wantedDates})=>{
     const clean=v=>String(v??"").replace(/\s+/g," ").trim();
     const rect=e=>{const r=e.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height};};
-    const dates=[...document.querySelectorAll('.fc-timeline-slot[data-date], .fc-col-header-cell[data-date], [role="columnheader"][data-date]')].map(el=>({date:el.getAttribute("data-date")?.slice(0,10),...rect(el)})).filter(x=>wantedDates.includes(x.date)&&x.width>1);
-    if(!dates.length){
+    const visibleDates=[...document.querySelectorAll('.fc-timeline-slot[data-date], .fc-col-header-cell[data-date], [role="columnheader"][data-date]')].map(el=>({date:el.getAttribute("data-date")?.slice(0,10),...rect(el)})).filter(x=>x.date&&x.width>1);
+    if(!visibleDates.length){
       for(const el of document.querySelectorAll('.fc-timeline-slot-cushion[aria-label]')){
         const parent=el.closest('[data-date]'); const date=parent?.getAttribute("data-date")?.slice(0,10);
-        if(date&&wantedDates.includes(date))dates.push({date,...rect(parent)});
+        if(date){
+          const bounds=rect(parent);
+          if(bounds.width>1)visibleDates.push({date,...bounds});
+        }
       }
     }
+    const dates=visibleDates.filter(x=>wantedDates.includes(x.date));
     const uniqueDates=[...new Map(dates.map(d=>[d.date,d])).values()];
     const resources=[...document.querySelectorAll('.fc-datagrid-cell.fc-resource')].filter(el=>el.querySelector('[data-testid^="resource-member-"]')).map(el=>({id:el.getAttribute("data-resource-id"),name:clean(el.querySelector('.fc-datagrid-cell-main')?.textContent||el.textContent),...rect(el)})).filter(x=>x.id&&x.name&&x.height>3);
     const events=[...document.querySelectorAll('a.fc-event.allocation')].map(el=>({name:clean(el.querySelector('.fc-event-title,.fc-event-main-frame,.fc-event-main')?.textContent||el.getAttribute("aria-label")||el.textContent),resourceId:el.closest('[data-resource-id]')?.getAttribute('data-resource-id'),...rect(el)})).filter(x=>x.name&&x.width>1&&x.height>1);
@@ -140,7 +137,7 @@ async function readBoard(page,wantedDates){
       const marker=clean(el.textContent);
       return absenceTypes[marker]?{...absenceTypes[marker],resourceId:el.closest('[data-resource-id]')?.getAttribute('data-resource-id'),...rect(el)}:null;
     }).filter(x=>x&&x.width>1&&x.height>1);
-    return {dates:uniqueDates,resources,events,absences};
+    return {dates:uniqueDates,visibleDates:[...new Set(visibleDates.map(day=>day.date))].sort(),resources,events,absences};
   },{wantedDates});
 }
 
@@ -183,7 +180,8 @@ async function readPlanningWindow(page){
   const wantedDates=planningDates();
   const captures=[];
   const capturedDates=new Set();
-  for(let attempt=0;attempt<3;attempt++){
+  const visitedWindows=new Set();
+  for(let attempt=0;attempt<wantedDates.length*2+2;attempt++){
     const remaining=wantedDates.filter(date=>!capturedDates.has(date));
     if(!remaining.length)break;
     const raw=await readBoard(page,remaining);
@@ -191,9 +189,17 @@ async function readPlanningWindow(page){
     captures.push(raw);
     for(const day of raw.dates)capturedDates.add(day.date);
     if(wantedDates.every(date=>capturedDates.has(date)))break;
-    const previousButton=page.locator(".fc-prev-button").first().or(page.getByRole("button",{name:/zurück|vorherig|previous/i}).first()).first();
-    if(!await previousButton.isVisible({timeout:3000}).catch(()=>false))break;
-    await previousButton.click();
+    const visible=raw.visibleDates;
+    if(!visible.length)throw new Error("Planner visible date range was not recognized.");
+    const target=wantedDates.find(date=>!capturedDates.has(date));
+    const windowKey=`${visible[0]}:${visible.at(-1)}:${target}`;
+    if(visitedWindows.has(windowKey))throw new Error("Planner navigation did not advance to the missing dates.");
+    visitedWindows.add(windowKey);
+    const previous=target<visible[0];
+    if(!previous&&target<=visible.at(-1))throw new Error(`Planner did not expose required date ${target}.`);
+    const navigationButton=page.locator(previous?".fc-prev-button":".fc-next-button").first().or(page.getByRole("button",{name:previous?/zurück|vorherig|previous/i:/nächste|next/i}).first()).first();
+    if(!await navigationButton.isVisible({timeout:3000}).catch(()=>false))break;
+    await navigationButton.click();
     await page.waitForTimeout(2500);
   }
   const missingDates=wantedDates.filter(date=>!capturedDates.has(date));
@@ -228,3 +234,4 @@ try{
   console.error(`Planning update failed: ${error.message}`);
   process.exitCode=1;
 }finally{await browser.close();}
+

@@ -35,6 +35,8 @@ Open **Actions → Update and publish dashboard → Run workflow → Run workflo
 
 The workflow runs hourly from 05:00 through 17:00, Monday–Friday, in `Europe/Berlin`, including daylight-saving-time changes. A failed login or invalid planner response stops the deployment, leaving the last working dashboard online.
 
+The displayed eight calendar dates always follow the current date in `Europe/Berlin`: two previous days, today, and five following days, including weekends. The browser checks for a date change every 30 seconds and immediately when the tab is shown or the window regains focus. This rollover does not depend on a successful data refresh. Dates absent from the last published snapshot are marked **Noch keine Planungsdaten**, never as unassigned days. Both the display and the collector use calendar-date arithmetic so DST and month/year boundaries preserve eight distinct dates.
+
 An open dashboard checks for newly published planning data every five minutes and updates without a manual browser refresh. It also performs one protected full-page reload at 04:55 Europe/Berlin each day so a permanently open TV browser picks up new site assets.
 
 ## Manual update and troubleshooting
@@ -46,3 +48,7 @@ An open dashboard checks for newly published planning data every five minutes an
 - Change the password: update only the `PLANCRAFT_PASSWORD` repository secret.
 
 PlanCraft may change its page structure. If a run reports that the planner structure was not recognized, the selectors in `scripts/update-plancraft.mjs` need a maintenance update.
+
+## Local verification
+
+Run `npm run check` for JavaScript syntax and the date-window/collector-navigation regression tests. It does not log in to PlanCraft or change planning data.

@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "update": "node scripts/update-plancraft.mjs",
-    "check": "node --check scripts/update-plancraft.mjs && node --check public/app.js"
+    "check": "node --check scripts/update-plancraft.mjs && node --check public/app.js && node --check public/planning-dates.js && node --test tests/*.test.mjs"
   },
   "dependencies": {
     "playwright": "^1.55.0"
   }
 }
+
