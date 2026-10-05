@@ -30,7 +30,7 @@ const appointmentFmt = item => {
   if(!item.date)return "Gebucht · Datum fehlt";
   const start=item.endDate?new Intl.DateTimeFormat("de-DE",{timeZone:BERLIN,day:"2-digit",month:"2-digit"}).format(certificateDate(item.date)):certificateFmt(item.date);
   const dates=item.endDate?`${start}–${certificateFmt(item.endDate)}`:start;
-  return item.time?`${dates} · ${item.time}${item.timeZone?` (${item.timeZone})`:""}`:dates;
+  return item.time&&!item.endDate?`${dates} · ${item.time}`:dates;
 };
 
 function renderSchedule(data){
@@ -189,7 +189,7 @@ function renderCertificates(data){
   }).sort((a,b)=>a.sort-b.sort||a.name.localeCompare(b.name,"de"));
   document.querySelector("#certificateRows").innerHTML=employees.map(employee=>`<div class="certificate-row"><strong>${escapeHtml(employee.name)}</strong><span class="certificate-cell ${employee.climbingState.className}">${escapeHtml(employee.climbingState.label)}</span><span class="certificate-cell reference">${escapeHtml(certificateFmt(employee.medical))}</span><span class="certificate-cell reference">${escapeHtml(certificateFmt(employee.firstAid))}</span></div>`).join("");
   const appointments=data.appointments.filter(item=>(item.booked||(item.status==="pending"&&item.date))&&(!item.date||(item.endDate??item.date)>=berlinToday())).sort((a,b)=>(a.date??"9999-12-31").localeCompare(b.date??"9999-12-31")||a.name.localeCompare(b.name,"de"));
-  document.querySelector("#appointmentRows").innerHTML=appointments.map(item=>`<div class="appointment ${item.booked?"booked":"pending"}${item.location?" detailed":""}"><div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.type)}</span>${!item.booked?'<span class="appointment-status">Angemeldet – Bestätigung ausstehend</span>':""}${item.location?`<span>${escapeHtml(item.location)}</span>`:""}${item.note?`<span>${escapeHtml(item.note)}</span>`:""}</div><em>${escapeHtml(appointmentFmt(item))}</em></div>`).join("");
+  document.querySelector("#appointmentRows").innerHTML=appointments.map(item=>`<div class="appointment ${item.booked?"booked":"pending"}"><div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.type)}${item.booked?"":" · unbestätigt"}</span></div><em>${escapeHtml(appointmentFmt(item))}</em></div>`).join("");
 }
 
 function screenIndexFromHash(){

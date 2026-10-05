@@ -43,8 +43,10 @@ test("future courses are visible now without hiding existing booked appointments
   const html = render("2026-10-05");
   for (const name of names) assert.ok(html.includes(name));
   assert.equal((html.match(/class="appointment booked"/g) ?? []).length, 4);
-  assert.equal((html.match(/Angemeldet – Bestätigung ausstehend/g) ?? []).length, 2);
-  assert.equal((html.match(/02\.04\.–07\.04\.2027 · täglich 09:00–17:00 Uhr \(Europe\/Berlin\)/g) ?? []).length, 2);
+  assert.equal((html.match(/ · unbestätigt/g) ?? []).length, 2);
+  assert.ok(html.includes("06.10.2026 · 08:30–16:30 Uhr"));
+  for (const detail of ["KSK Ausbildungscenter", "Grüner Brunnenweg", "09:00–17:00", "Europe/Berlin", "Samstag und Sonntag", " detailed"]) assert.ok(!html.includes(detail));
+  assert.equal((html.match(/<em>02\.04\.–07\.04\.2027<\/em>/g) ?? []).length, 2);
 });
 
 test("courses remain visible across the weekend and through their inclusive end date", () => {
@@ -67,12 +69,12 @@ test("undated unbooked needs stay hidden while booked entries without a date rem
   assert.ok(html.includes("Booked without date"));
 });
 
-test("appointment details escape markup", () => {
+test("compact appointment names and courses escape markup", () => {
   const html = render("2026-10-05", [{
     name: "<participant>", type: "<course>", booked: false, status: "pending",
     date: "2027-04-02", location: "<address>", note: "<note>"
   }]);
-  for (const value of ["participant", "course", "address", "note"]) {
+  for (const value of ["participant", "course"]) {
     assert.ok(html.includes("&lt;" + value + "&gt;"));
     assert.ok(!html.includes("<" + value + ">"));
   }
