@@ -52,3 +52,7 @@ PlanCraft may change its page structure. If a run reports that the planner struc
 ## Local verification
 
 Run `npm run check` for JavaScript syntax and the date-window/collector-navigation regression tests. It does not log in to PlanCraft or change planning data.
+
+## Manual course appointments
+
+Maintain course appointments in `public/certificates.json`; scheduled PlanCraft refreshes only replace `schedule.json` in the deployment artifact. Page two (`#certificates`) shows all future or ongoing booked appointments and dated entries with `status: "pending"` and `booked: false`, without a near-term limit. Pending registrations are labeled **Angemeldet – Bestätigung ausstehend**. Date ranges include their end date and weekends; `timeZone`, `location`, and `note` provide course details. This list is independent of the eight-day work-planning view.

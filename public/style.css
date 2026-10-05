@@ -77,3 +77,10 @@
 
 /* Keep the page navigation dots slightly higher above the screen edge. */
 .screen-dots{bottom:16px}
+
+/* Detailed course appointments retain the existing panel and booking colors. */
+.appointment.detailed{flex-direction:column;align-items:stretch;gap:4px;padding-block:8px}
+.appointment.detailed span{color:rgba(255,255,255,.78)}
+.appointment.detailed em{align-self:flex-start;max-width:100%;box-sizing:border-box;line-height:1.4;border-radius:5px;white-space:normal}
+.appointment.pending em{background:rgba(255,215,138,.12);color:#ffd78a}
+.appointment .appointment-status{color:#ffd78a;font-weight:900}

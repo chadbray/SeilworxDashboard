@@ -144,6 +144,30 @@
       "type": "Erste Hilfe",
       "booked": false,
       "date": null
+    },
+    {
+      "name": "Felix Duchemin",
+      "type": "KSK FISAT Level 3",
+      "booked": false,
+      "status": "pending",
+      "date": "2027-04-02",
+      "endDate": "2027-04-07",
+      "time": "täglich 09:00–17:00 Uhr",
+      "timeZone": "Europe/Berlin",
+      "location": "KSK Ausbildungscenter, Grüner Brunnenweg 182, 50827 Köln",
+      "note": "Inklusive Samstag und Sonntag"
+    },
+    {
+      "name": "Matias Alejandro Carvalho",
+      "type": "KSK FISAT Level 3",
+      "booked": false,
+      "status": "pending",
+      "date": "2027-04-02",
+      "endDate": "2027-04-07",
+      "time": "täglich 09:00–17:00 Uhr",
+      "timeZone": "Europe/Berlin",
+      "location": "KSK Ausbildungscenter, Grüner Brunnenweg 182, 50827 Köln",
+      "note": "Inklusive Samstag und Sonntag"
     }
   ]
 }
