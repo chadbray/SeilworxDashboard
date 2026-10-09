@@ -29,7 +29,7 @@ async function fixture(t, {preselected = false, missing = false, rejectSelection
     (missing ? '' : '<div role="option" aria-selected="false">Terminiert</div>') +
     '</div>' +
     '<table><thead><tr><th><button id="sort">Status</button></th></tr></thead>' +
-    '<tbody><tr><td><a href="/folders/sample">Example project</a></td>' +
+    '<tbody><tr><td><a href="https://example.invalid/folders/sample">Example project</a></td>' +
     '<td></td><td></td><td>Datum festlegen</td><td>12.10.2026</td></tr></tbody></table>' +
     '<script>' +
     'const combo = document.querySelector("[role=combobox]");' +
