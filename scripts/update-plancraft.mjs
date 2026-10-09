@@ -51,12 +51,21 @@ function validate(data){
 async function readUpcomingProjects(page){
   await gotoWithRetry(page,PROJECTS_URL);
   await page.locator('input[name="search"], input[placeholder*="Suche"]').first().waitFor({state:"visible",timeout:30000});
-  const statusFilter=page.getByRole("button",{name:/^Status(?:\s|$)/}).first();
+  // The table also has a Status sorting button. Only use the filter combobox;
+  // PlanCraft exposes its multi-select popup as a listbox, not a menu.
+  const statusFilter=page.getByRole("region",{name:"Filter",exact:true}).getByRole("combobox",{name:"Status",exact:true});
   await statusFilter.click();
-  const menu=page.locator('[role="menu"]').first();
-  await menu.getByText("Datum festlegen",{exact:true}).click();
-  await menu.getByText("Terminiert",{exact:true}).click();
-  await page.getByRole("button",{name:/^(Datum festlegen|Terminiert)(?:\s|$)/}).first().waitFor({state:"visible",timeout:30000});
+  const listbox=page.getByRole("listbox");
+  await listbox.waitFor({state:"visible",timeout:30000});
+  for(const name of ["Datum festlegen","Terminiert"]){
+    const option=listbox.getByRole("option",{name,exact:true});
+    if(await option.getAttribute("aria-selected")!=="true")await option.click();
+  }
+  // Fail before reading projects if either selection was not applied.
+  for(const name of ["Datum festlegen","Terminiert"]){
+    await listbox.getByRole("option",{name,exact:true,selected:true}).waitFor({state:"visible",timeout:30000});
+  }
+  await statusFilter.press("Escape");
   await page.waitForTimeout(1500);
   return page.locator('a[href*="/folders/"]').evaluateAll(links=>links.map(link=>{
     const href=link.getAttribute("href")||"";

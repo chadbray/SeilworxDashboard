@@ -52,7 +52,7 @@ PlanCraft may change its page structure. If a run reports that the planner struc
 
 ## Local verification
 
-Run `npm run check` for JavaScript syntax and the date-window/collector-navigation regression tests. It does not log in to PlanCraft or change planning data.
+Run `npm ci` and `npx playwright install chromium` once, then `npm run check` for JavaScript syntax and the date-window/collector-navigation regression tests. The status-filter tests launch headless Chromium against synthetic HTML; they do not log in to PlanCraft or change planning data. Pull requests run the same checks in GitHub Actions without publishing.
 
 ## Manual course appointments
 
